@@ -42,8 +42,8 @@
                     <i class="fa-solid fa-basketball"></i>
                 </div>
                 <div>
-                    <h1 class="text-base sm:text-lg font-black tracking-wider text-white">GODSEND 3X3 籃球聯賽</h1>
-                    <p class="text-[11px] text-amber-400 font-semibold tracking-wide">2026-2027 OFFICIAL SCORE & STANDINGS</p>
+                    <h1 class="text-base sm:text-lg font-black tracking-wider text-white" id="brandTitle">GODSEND 3X3 BASKETBALL LEAGUE</h1>
+                    <p class="text-[11px] text-amber-400 font-semibold tracking-wide" id="brandSub">2026-2027 OFFICIAL SCORE & STANDINGS</p>
                 </div>
             </div>
             
@@ -56,13 +56,13 @@
 
                 <!-- Mode Indicator Badge -->
                 <div id="modeBadge" class="hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                    <i class="fa-solid fa-lock mr-1.5"></i> <span id="modeBadgeText">球員視角 (唯讀)</span>
+                    <i class="fa-solid fa-lock mr-1.5"></i> <span id="modeBadgeText">Player View (Read-Only)</span>
                 </div>
 
                 <!-- Admin Toggle Button -->
                 <button onclick="requestAdminAccess()" id="toggleAdminBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-700">
                     <i class="fa-solid fa-user-shield text-amber-400"></i>
-                    <span id="toggleModeText">管理員登入</span>
+                    <span id="toggleModeText">Admin Login</span>
                 </button>
             </div>
         </div>
@@ -74,13 +74,13 @@
         <!-- Scoring Rules Banner -->
         <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center space-x-2 text-xs sm:text-sm">
-                <span class="font-extrabold text-amber-400" id="ruleLabel"><i class="fa-solid fa-trophy mr-1"></i> 聯賽計分規則：</span>
-                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold" id="ruleWin">勝 = 3分</span>
-                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-bold" id="ruleLoss">負 = 1分</span>
-                <span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-bold" id="ruleForfeit">缺席/棄權 = 0分</span>
+                <span class="font-extrabold text-amber-400" id="ruleLabel"><i class="fa-solid fa-trophy mr-1"></i> League Rules:</span>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold" id="ruleWin">Win = 3 pts</span>
+                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-bold" id="ruleLoss">Loss = 1 pt</span>
+                <span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-bold" id="ruleForfeit">Forfeit = 0 pts</span>
             </div>
             <div class="text-xs text-gray-400" id="teamsCountLabel">
-                <i class="fa-solid fa-people-group mr-1"></i> 參賽隊伍：10隊
+                <i class="fa-solid fa-people-group mr-1"></i> Teams: 10
             </div>
         </div>
 
@@ -88,22 +88,38 @@
         <div id="adminPanel" class="hidden bg-gray-900/90 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-5">
             <div class="flex items-center justify-between border-b border-gray-800 pb-3">
                 <h2 class="text-base font-bold text-amber-400 flex items-center" id="adminPanelTitle">
-                    <i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與隊伍設定
+                    <i class="fa-solid fa-pen-to-square mr-2"></i> Admin Management & Settings
                 </h2>
-                <span class="text-xs text-gray-400" id="adminStatusTag">登入狀態：可編輯賽程與隊名</span>
+                <span class="text-xs text-gray-400" id="adminStatusTag">Status: Live Editing Enabled</span>
             </div>
 
             <!-- Team Name Customization Section -->
             <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
                 <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-signature text-amber-400 mr-2"></i> <span id="adminTeamRenameTitle">自訂 10 支參賽隊伍名稱</span>
+                    <i class="fa-solid fa-signature text-amber-400 mr-2"></i> <span id="adminTeamRenameTitle">Customize 10 Team Names</span>
                 </h3>
                 <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="teamRenameInputsContainer">
                     <!-- Rendered via JS -->
                 </div>
                 <div class="flex justify-end">
                     <button onclick="saveTeamNames()" class="px-4 py-1.5 rounded-lg bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 transition">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i> <span id="btnSaveTeamNames">儲存隊名修改</span>
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> <span id="btnSaveTeamNames">Save Team Names</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Bracket Seeding / Overrides Section -->
+            <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
+                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-sitemap text-amber-400 mr-2"></i> <span id="adminBracketOverrideTitle">Manual Finals Bracket Seeding / Teams Assignment</span>
+                </h3>
+                <p class="text-[11px] text-gray-400" id="adminBracketOverrideDesc">Override automatic standings or assign custom teams into Cup, Plate, and Bowl tournament slots:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" id="bracketOverridesContainer">
+                    <!-- Rendered via JS -->
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="saveBracketOverrides()" class="px-4 py-1.5 rounded-lg bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 transition">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> <span id="btnSaveBracketOverrides">Save Bracket Assignments</span>
                     </button>
                 </div>
             </div>
@@ -111,20 +127,20 @@
             <!-- Score Entry Form -->
             <form id="scoreForm" onsubmit="handleScoreSubmit(event)" class="space-y-4 border-t border-gray-800 pt-4">
                 <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-basketball text-amber-400 mr-2"></i> <span id="adminScoreEntryTitle">輸入對戰賽果 (常規賽)</span>
+                    <i class="fa-solid fa-basketball text-amber-400 mr-2"></i> <span id="adminScoreEntryTitle">Enter Match Result</span>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
                     
                     <!-- Team A -->
                     <div class="md:col-span-2 space-y-1">
-                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamA">隊伍 A</label>
+                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamA">Team A</label>
                         <select id="teamASelect" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
                         </select>
                     </div>
 
                     <!-- Scores Input -->
                     <div class="md:col-span-3 space-y-1">
-                        <label class="block text-xs text-gray-400 font-medium text-center" id="lblScoreStatus">比賽分數 / 狀態</label>
+                        <label class="block text-xs text-gray-400 font-medium text-center" id="lblScoreStatus">Score / Match Status</label>
                         <div class="flex items-center space-x-2">
                             <div class="flex-1" id="scoresContainer">
                                 <div class="flex items-center space-x-2">
@@ -134,17 +150,17 @@
                                 </div>
                             </div>
                             <select id="matchTypeSelect" onchange="toggleForfeitInputs(this.value)" class="bg-gray-800 border border-gray-700 rounded-xl px-2 py-2 text-xs text-gray-300 focus:outline-none focus:border-amber-500 font-medium">
-                                <option value="NORMAL">正常比分</option>
-                                <option value="FORFEIT_A">隊伍A缺席 (0-21)</option>
-                                <option value="FORFEIT_B">隊伍B缺席 (21-0)</option>
-                                <option value="RESET_UNPLAYED">重置為未賽</option>
+                                <option value="NORMAL">Normal Score</option>
+                                <option value="FORFEIT_A">Team A Forfeit (0-21)</option>
+                                <option value="FORFEIT_B">Team B Forfeit (21-0)</option>
+                                <option value="RESET_UNPLAYED">Reset to Unplayed</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- Team B -->
                     <div class="md:col-span-2 space-y-1">
-                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamB">隊伍 B</label>
+                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamB">Team B</label>
                         <select id="teamBSelect" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
                         </select>
                     </div>
@@ -153,7 +169,7 @@
                 <div class="flex items-center justify-end space-x-3 pt-2">
                     <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-sm shadow-md transition flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        <span id="btnSaveScore">儲存/更新賽果</span>
+                        <span id="btnSaveScore">Save / Update Match</span>
                     </button>
                 </div>
             </form>
@@ -163,18 +179,18 @@
         <div class="flex flex-wrap items-center justify-between border-b border-gray-800 pb-2 gap-2">
             <div class="flex flex-wrap space-x-2 gap-y-2">
                 <button onclick="switchTab('matrix')" id="tabBtnMatrix" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black">
-                    <i class="fa-solid fa-table-cells mr-1.5"></i> <span id="tabMatrixText">10x10 交叉對戰矩陣</span>
+                    <i class="fa-solid fa-table-cells mr-1.5"></i> <span id="tabMatrixText">10x10 Match Matrix</span>
                 </button>
                 <button onclick="switchTab('standings')" id="tabBtnStandings" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
-                    <i class="fa-solid fa-list-ol mr-1.5"></i> <span id="tabStandingsText">聯賽排名榜</span>
+                    <i class="fa-solid fa-list-ol mr-1.5"></i> <span id="tabStandingsText">League Standings</span>
                 </button>
                 <button onclick="switchTab('brackets')" id="tabBtnBrackets" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
-                    <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">盃碟碗決賽樹狀圖</span>
+                    <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">Finals Brackets</span>
                 </button>
             </div>
             <div class="flex items-center space-x-2">
                 <button onclick="exportDataCSV()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold" title="Export CSV">
-                    <i class="fa-solid fa-file-csv text-emerald-400 mr-1"></i> <span class="hidden sm:inline" id="btnExportText">匯出數據</span>
+                    <i class="fa-solid fa-file-csv text-emerald-400 mr-1"></i> <span class="hidden sm:inline" id="btnExportText">Export Data</span>
                 </button>
             </div>
         </div>
@@ -183,9 +199,9 @@
         <div id="sectionMatrix" class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-sm font-bold text-white flex items-center">
-                    <i class="fa-solid fa-chess-board text-amber-500 mr-2"></i> <span id="matrixHeaderTitle">GODSEND 3X3 官方交叉對戰表</span>
+                    <i class="fa-solid fa-chess-board text-amber-500 mr-2"></i> <span id="matrixHeaderTitle">GODSEND 3X3 Match Matrix</span>
                 </h3>
-                <span class="text-xs text-gray-400" id="matrixHeaderSub">（實時顯示各隊交手勝負與比分）</span>
+                <span class="text-xs text-gray-400" id="matrixHeaderSub">(Live head-to-head results & scores)</span>
             </div>
 
             <div class="overflow-x-auto custom-scrollbar border border-gray-800 rounded-xl">
@@ -199,25 +215,25 @@
         <div id="sectionStandings" class="hidden bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-sm font-bold text-white flex items-center">
-                    <i class="fa-solid fa-ranking-star text-amber-500 mr-2"></i> <span id="standingsHeaderTitle">總積分與排名榜</span>
+                    <i class="fa-solid fa-ranking-star text-amber-500 mr-2"></i> <span id="standingsHeaderTitle">League Leaderboard</span>
                 </h3>
-                <span class="text-xs text-gray-400" id="standingsHeaderSub">排序：總積分 > 勝場數 > 得失分差</span>
+                <span class="text-xs text-gray-400" id="standingsHeaderSub">Order: Points > Wins > Point Diff</span>
             </div>
 
             <div class="overflow-x-auto custom-scrollbar border border-gray-800 rounded-xl">
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead class="bg-gray-950 text-gray-400 font-bold border-b border-gray-800">
                         <tr>
-                            <th class="px-3 py-3 text-center" id="thRank">排名</th>
-                            <th class="px-4 py-3" id="thTeam">隊伍名稱</th>
-                            <th class="px-3 py-3 text-center" id="thPlayed">已賽</th>
-                            <th class="px-3 py-3 text-center text-emerald-400" id="thWin">勝 (3分)</th>
-                            <th class="px-3 py-3 text-center text-red-400" id="thLoss">負 (1分)</th>
-                            <th class="px-3 py-3 text-center text-gray-400" id="thForfeit">缺席 (0分)</th>
-                            <th class="px-3 py-3 text-center" id="thPtsScored">總得分</th>
-                            <th class="px-3 py-3 text-center" id="thPtsConceded">總失分</th>
-                            <th class="px-3 py-3 text-center" id="thDiff">得失分差</th>
-                            <th class="px-4 py-3 text-center text-amber-400 font-black" id="thTotalPts">總積分</th>
+                            <th class="px-3 py-3 text-center" id="thRank">Rank</th>
+                            <th class="px-4 py-3" id="thTeam">Team</th>
+                            <th class="px-3 py-3 text-center" id="thPlayed">GP</th>
+                            <th class="px-3 py-3 text-center text-emerald-400" id="thWin">W (3pts)</th>
+                            <th class="px-3 py-3 text-center text-red-400" id="thLoss">L (1pt)</th>
+                            <th class="px-3 py-3 text-center text-gray-400" id="thForfeit">F (0pts)</th>
+                            <th class="px-3 py-3 text-center" id="thPtsScored">PF</th>
+                            <th class="px-3 py-3 text-center" id="thPtsConceded">PA</th>
+                            <th class="px-3 py-3 text-center" id="thDiff">DIFF</th>
+                            <th class="px-4 py-3 text-center text-amber-400 font-black" id="thTotalPts">PTS</th>
                         </tr>
                     </thead>
                     <tbody id="standingsBody" class="divide-y divide-gray-800">
@@ -234,30 +250,30 @@
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-red-950 to-red-900/50 p-2.5 rounded-xl border border-red-800/50">
                     <h3 class="text-sm font-extrabold text-red-200 flex items-center">
-                        <i class="fa-solid fa-trophy mr-2 text-red-400"></i> 🏆 盃賽 (Cup Championship) — 爭奪 1-3 名
+                        <i class="fa-solid fa-trophy mr-2 text-red-400"></i> <span id="cupTitle">🏆 Cup Championship — Rank 1-3 Playoff</span>
                     </h3>
-                    <span class="text-xs text-red-300 font-medium">Day 10 決賽</span>
+                    <span class="text-xs text-red-300 font-medium" id="cupSubtitle">Day 10 Finals</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
                     <div class="space-y-3">
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 57 (準決賽)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">C2 (G46勝)</span><span id="bracketC2" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">C3 (G48勝)</span><span id="bracketC3" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelGame57">GAME 57 (Semifinal)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblC2">C2 (Play-in Winner)</span><span id="bracketC2" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblC3">C3 (Play-in Winner)</span><span id="bracketC3" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5 border-dashed">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">直通總決賽</div>
-                            <div class="flex justify-between text-xs"><span class="text-gray-300">常規賽第 1 名</span><span id="bracketR1" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelDirectFinal">Direct Finals Berth</div>
+                            <div class="flex justify-between text-xs"><span class="text-gray-300" id="lblR1">Regular Season Rank 1</span><span id="bracketR1" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                     </div>
                     <div class="bg-gray-900 border border-red-500/40 rounded-xl p-3 shadow-lg">
-                        <div class="text-[10px] text-red-400 font-bold mb-1">GAME 59 (盃賽總決賽)</div>
-                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">Game 57 勝者</span><span id="bracketW57" class="font-bold text-amber-400">[待定]</span></div>
-                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 1 名 (R1)</span><span id="bracketR1Final" class="font-bold text-amber-400">[待定]</span></div>
+                        <div class="text-[10px] text-red-400 font-bold mb-1" id="labelGame59">GAME 59 (Cup Grand Final)</div>
+                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblWinner57">Game 57 Winner</span><span id="bracketW57" class="font-bold text-amber-400">[TBD]</span></div>
+                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblRank1Final">Regular Season Rank 1 (R1)</span><span id="bracketR1Final" class="font-bold text-amber-400">[TBD]</span></div>
                     </div>
                     <div class="bg-gradient-to-br from-red-950/60 to-amber-950/40 border border-amber-500/40 rounded-xl p-4 text-center">
-                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">🏆 盃賽總冠軍 (聯賽第1名)</div>
-                        <div id="bracketCupChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1" id="labelCupChamp">🏆 Cup Champion (League 1st)</div>
+                        <div id="bracketCupChampion" class="text-base font-black text-white">[ TBD ]</div>
                     </div>
                 </div>
             </div>
@@ -266,30 +282,30 @@
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-blue-950 to-blue-900/50 p-2.5 rounded-xl border border-blue-800/50">
                     <h3 class="text-sm font-extrabold text-blue-200 flex items-center">
-                        <i class="fa-solid fa-medal mr-2 text-blue-400"></i> 🥇 碟賽 (Plate Championship) — 爭奪 4-6 名
+                        <i class="fa-solid fa-medal mr-2 text-blue-400"></i> <span id="plateTitle">🥇 Plate Championship — Rank 4-6 Playoff</span>
                     </h3>
-                    <span class="text-xs text-blue-300 font-medium">Day 10 決賽</span>
+                    <span class="text-xs text-blue-300 font-medium" id="plateSubtitle">Day 10 Finals</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
                     <div class="space-y-3">
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 56 (第一輪)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">D5 (G49勝)</span><span id="bracketD5" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">D6 (G51勝)</span><span id="bracketD6" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelGame56">GAME 56 (First Round)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblD5">D5 (Play-in Winner)</span><span id="bracketD5" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblD6">D6 (Play-in Winner)</span><span id="bracketD6" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5 border-dashed">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">直通碟賽決賽</div>
-                            <div class="flex justify-between text-xs"><span class="text-gray-300">D4 (G48敗)</span><span id="bracketD4" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelDirectPlateFinal">Direct Plate Final Berth</div>
+                            <div class="flex justify-between text-xs"><span class="text-gray-300" id="lblD4">D4 (Play-in Loser)</span><span id="bracketD4" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                     </div>
                     <div class="bg-gray-900 border border-blue-500/40 rounded-xl p-3 shadow-lg">
-                        <div class="text-[10px] text-blue-400 font-bold mb-1">GAME 58 (碟賽總決賽)</div>
-                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">Game 56 勝者</span><span id="bracketW56" class="font-bold text-amber-400">[待定]</span></div>
-                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">D4 (G48敗)</span><span id="bracketD4Final" class="font-bold text-amber-400">[待定]</span></div>
+                        <div class="text-[10px] text-blue-400 font-bold mb-1" id="labelGame58">GAME 58 (Plate Grand Final)</div>
+                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblWinner56">Game 56 Winner</span><span id="bracketW56" class="font-bold text-amber-400">[TBD]</span></div>
+                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblD4Final">D4 (Play-in Loser)</span><span id="bracketD4Final" class="font-bold text-amber-400">[TBD]</span></div>
                     </div>
                     <div class="bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 rounded-xl p-4 text-center">
-                        <div class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">🥇 碟賽總冠軍 (聯賽第4名)</div>
-                        <div id="bracketPlateChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                        <div class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1" id="labelPlateChamp">🥇 Plate Champion (League 4th)</div>
+                        <div id="bracketPlateChampion" class="text-base font-black text-white">[ TBD ]</div>
                     </div>
                 </div>
             </div>
@@ -298,38 +314,38 @@
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-amber-950 to-amber-900/50 p-2.5 rounded-xl border border-amber-800/50">
                     <h3 class="text-sm font-extrabold text-amber-200 flex items-center">
-                        <i class="fa-solid fa-award mr-2 text-amber-400"></i> 🎖️ 碗賽 (Bowl Championship) — 爭奪 7-10 名
+                        <i class="fa-solid fa-award mr-2 text-amber-400"></i> <span id="bowlTitle">🎖️ Bowl Championship — Rank 7-10 Playoff</span>
                     </h3>
-                    <span class="text-xs text-amber-300 font-medium">Day 10 決賽</span>
+                    <span class="text-xs text-amber-300 font-medium" id="bowlSubtitle">Day 10 Finals</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
                     <div class="space-y-3">
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 52 (準決賽 1)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">B7 (G51敗)</span><span id="bracketB7" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 10 名</span><span id="bracketR10" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelGame52">GAME 52 (Semifinal 1)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblB7">B7 (Play-in Loser)</span><span id="bracketB7" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblR10">Regular Season Rank 10</span><span id="bracketR10" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 53 (準決賽 2)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">B8 (G50敗)</span><span id="bracketB8" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 9 名</span><span id="bracketR9" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelGame53">GAME 53 (Semifinal 2)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblB8">B8 (Play-in Loser)</span><span id="bracketB8" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblR9">Regular Season Rank 9</span><span id="bracketR9" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                     </div>
                     <div class="space-y-3">
                         <div class="bg-gray-900 border border-amber-500/40 rounded-xl p-2.5">
-                            <div class="text-[10px] text-amber-400 font-bold mb-1">GAME 55 (碗賽總決賽)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">G52 勝者</span><span id="bracketW52" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">G53 勝者</span><span id="bracketW53" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-amber-400 font-bold mb-1" id="labelGame55">GAME 55 (Bowl Grand Final)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblWinner52">Game 52 Winner</span><span id="bracketW52" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblWinner53">Game 53 Winner</span><span id="bracketW53" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
-                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 54 (9-10名次賽)</div>
-                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">G52 敗者</span><span id="bracketL52" class="font-bold text-amber-400">[待定]</span></div>
-                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">G53 敗者</span><span id="bracketL53" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="text-[10px] text-gray-400 font-bold mb-1" id="labelGame54">GAME 54 (9th-10th Place)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300" id="lblLoser52">Game 52 Loser</span><span id="bracketL52" class="font-bold text-amber-400">[TBD]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300" id="lblLoser53">Game 53 Loser</span><span id="bracketL53" class="font-bold text-amber-400">[TBD]</span></div>
                         </div>
                     </div>
                     <div class="bg-gradient-to-br from-amber-950/60 to-slate-900 border border-amber-500/40 rounded-xl p-4 text-center">
-                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">🎖️ 碗賽總冠軍 (聯賽第7名)</div>
-                        <div id="bracketBowlChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1" id="labelBowlChamp">🎖️ Bowl Champion (League 7th)</div>
+                        <div id="bracketBowlChampion" class="text-base font-black text-white">[ TBD ]</div>
                     </div>
                 </div>
             </div>
@@ -340,10 +356,10 @@
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-sm font-bold text-white flex items-center">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i> <span id="historyHeaderTitle">比賽紀錄與動態</span>
+                    <i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i> <span id="historyHeaderTitle">Match History & Logs</span>
                 </h3>
                 <select id="historyFilterSelect" onchange="filterHistory()" class="bg-gray-800 border border-gray-700 text-xs rounded-lg px-2 py-1 text-gray-300">
-                    <option value="ALL">全部隊伍紀錄</option>
+                    <option value="ALL">All Teams History</option>
                 </select>
             </div>
 
@@ -365,11 +381,11 @@
             <h3 id="modalTitle" class="text-base font-bold text-white"></h3>
             <p id="modalMessage" class="text-xs text-gray-400"></p>
             <div id="modalInputContainer">
-                <input type="password" id="adminPasswordInput" placeholder="請輸入管理員密碼" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                <input type="password" id="adminPasswordInput" placeholder="Enter admin password" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
             </div>
             <div class="flex items-center justify-end space-x-2 pt-2">
-                <button onclick="closeModal()" id="btnModalCancel" class="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 text-xs font-semibold hover:bg-gray-700">取消</button>
-                <button id="modalConfirmBtn" class="px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400">確認</button>
+                <button onclick="closeModal()" id="btnModalCancel" class="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 text-xs font-semibold hover:bg-gray-700">Cancel</button>
+                <button id="modalConfirmBtn" class="px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400">Confirm</button>
             </div>
         </div>
     </div>
@@ -383,10 +399,25 @@
         ];
         
         const ADMIN_PIN = "0000";
-        const STORAGE_KEY_MATCHES = "GODSEND_3X3_MATCHES_V3";
-        const STORAGE_KEY_TEAMS = "GODSEND_3X3_TEAMS_V3";
+        const STORAGE_KEY_MATCHES = "GODSEND_3X3_MATCHES_V4";
+        const STORAGE_KEY_TEAMS = "GODSEND_3X3_TEAMS_V4";
+        const STORAGE_KEY_OVERRIDES = "GODSEND_3X3_BRACKET_OVERRIDES_V4";
 
         let OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
+        
+        // Manual bracket slot overrides (Admin configurable)
+        let bracketOverrides = {
+            r1: "",
+            c2: "",
+            c3: "",
+            d4: "",
+            d5: "",
+            d6: "",
+            b7: "",
+            b8: "",
+            r9: "",
+            r10: ""
+        };
 
         /* --- I18n Translations --- */
         const i18n = {
@@ -401,10 +432,15 @@
                 ruleLoss: "負 = 1分",
                 ruleForfeit: "缺席/棄權 = 0分",
                 teamsCount: '<i class="fa-solid fa-people-group mr-1"></i> 參賽隊伍：10隊',
-                adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與隊伍設定',
-                adminStatusTag: "登入狀態：可編輯賽程與隊名",
+                adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與賽事編排設定',
+                adminStatusTag: "登入狀態：可編輯賽程、隊名與決賽種子",
                 adminTeamRenameTitle: "自訂 10 支參賽隊伍名稱",
                 btnSaveTeamNames: "儲存隊名修改",
+                adminBracketOverrideTitle: "自訂決賽樹狀圖參賽隊伍 (種子分配/指派)",
+                adminBracketOverrideDesc: "管理員可手動指定各晉級欄位（如 C2, C3, D4-D6, B7-B8 及 R1/R9/R10）的參賽隊伍，覆蓋自動排名或直接分配：",
+                bracketAutoOption: "-- 按聯賽排名自動分配 --",
+                bracketSlotLabels: ["常規賽第 1 名 (R1)", "盃賽 C2", "盃賽 C3", "碟賽 D4", "碟賽 D5", "碟賽 D6", "碗賽 B7", "碗賽 B8", "常規賽第 9 名 (R9)", "常規賽第 10 名 (R10)"],
+                btnSaveBracketOverrides: "儲存樹狀圖分配",
                 adminScoreEntryTitle: "輸入對戰賽果 (常規賽)",
                 lblTeamA: "隊伍 A",
                 lblTeamB: "隊伍 B",
@@ -437,6 +473,43 @@
                 thPtsConceded: "總失分",
                 thDiff: "得失分差",
                 thTotalPts: "總積分",
+                cupTitle: "🏆 盃賽 (Cup Championship) — 爭奪 1-3 名",
+                cupSubtitle: "Day 10 決賽",
+                labelGame57: "GAME 57 (準決賽)",
+                lblC2: "C2 (附加賽勝者)",
+                lblC3: "C3 (附加賽勝者)",
+                labelDirectFinal: "直通總決賽",
+                lblR1: "常規賽第 1 名 (R1)",
+                labelGame59: "GAME 59 (盃賽總決賽)",
+                lblWinner57: "Game 57 勝者",
+                lblRank1Final: "常規賽第 1 名 (R1)",
+                labelCupChamp: "🏆 盃賽總冠軍 (聯賽第1名)",
+                plateTitle: "🥇 碟賽 (Plate Championship) — 爭奪 4-6 名",
+                plateSubtitle: "Day 10 決賽",
+                labelGame56: "GAME 56 (第一輪)",
+                lblD5: "D5 (附加賽勝者)",
+                lblD6: "D6 (附加賽勝者)",
+                labelDirectPlateFinal: "直通碟賽決賽",
+                lblD4: "D4 (附加賽敗者)",
+                labelGame58: "GAME 58 (碟賽總決賽)",
+                lblWinner56: "Game 56 勝者",
+                lblD4Final: "D4 (附加賽敗者)",
+                labelPlateChamp: "🥇 碟賽總冠軍 (聯賽第4名)",
+                bowlTitle: "🎖️ 碗賽 (Bowl Championship) — 爭奪 7-10 名",
+                bowlSubtitle: "Day 10 決賽",
+                labelGame52: "GAME 52 (準決賽 1)",
+                lblB7: "B7 (附加賽敗者)",
+                lblR10: "常規賽第 10 名 (R10)",
+                labelGame53: "GAME 53 (準決賽 2)",
+                lblB8: "B8 (附加賽敗者)",
+                lblR9: "常規賽第 9 名 (R9)",
+                labelGame55: "GAME 55 (碗賽總決賽)",
+                lblWinner52: "Game 52 勝者",
+                lblWinner53: "Game 53 勝者",
+                labelGame54: "GAME 54 (9-10名次賽)",
+                lblLoser52: "Game 52 敗者",
+                lblLoser53: "Game 53 敗者",
+                labelBowlChamp: "🎖️ 碗賽總冠軍 (聯賽第7名)",
                 historyTitle: "比賽紀錄與動態",
                 filterAll: "全部隊伍紀錄",
                 noHistory: "暫無相關賽果紀錄",
@@ -453,6 +526,7 @@
                 msgResetSuccess: "已成功將對戰紀錄重置為「未賽」！",
                 msgAlreadyUnplayed: "該對戰原本就屬於「未賽」狀態。",
                 msgTeamNamesSaved: "已成功更新 10 支隊伍名稱！",
+                msgBracketSaved: "已成功更新樹狀圖隊伍分配設定！",
                 confirmDeleteTitle: "刪除賽果",
                 confirmDeleteMsg: "確定要刪除這場比賽紀錄嗎？",
                 confirmResetTitle: "重置對戰狀態",
@@ -474,6 +548,11 @@
                 adminStatusTag: "Status: Live Editing Enabled",
                 adminTeamRenameTitle: "Customize 10 Team Names",
                 btnSaveTeamNames: "Save Team Names",
+                adminBracketOverrideTitle: "Manual Finals Bracket Seeding / Teams Assignment",
+                adminBracketOverrideDesc: "Assign specific teams manually into tournament slots (C2, C3, D4-D6, B7-B8, R1, R9, R10) to override automatic standings:",
+                bracketAutoOption: "-- Auto from Standings --",
+                bracketSlotLabels: ["Regular Rank 1 (R1)", "Cup C2", "Cup C3", "Plate D4", "Plate D5", "Plate D6", "Bowl B7", "Bowl B8", "Regular Rank 9 (R9)", "Regular Rank 10 (R10)"],
+                btnSaveBracketOverrides: "Save Bracket Assignments",
                 adminScoreEntryTitle: "Enter Match Result",
                 lblTeamA: "Team A",
                 lblTeamB: "Team B",
@@ -486,7 +565,7 @@
                 tabMatrix: "10x10 Match Matrix",
                 tabStandings: "League Standings",
                 tabBrackets: "Finals Brackets",
-                btnExport: "Export CSV",
+                btnExport: "Export Data",
                 matrixTitle: "GODSEND 3X3 Match Matrix",
                 matrixSub: "(Live head-to-head results & scores)",
                 matrixHeaderVS: "Team \\ Opponent",
@@ -506,6 +585,43 @@
                 thPtsConceded: "PA",
                 thDiff: "DIFF",
                 thTotalPts: "PTS",
+                cupTitle: "🏆 Cup Championship — Rank 1-3 Playoff",
+                cupSubtitle: "Day 10 Finals",
+                labelGame57: "GAME 57 (Semifinal)",
+                lblC2: "C2 (Play-in Winner)",
+                lblC3: "C3 (Play-in Winner)",
+                labelDirectFinal: "Direct Finals Berth",
+                lblR1: "Regular Season Rank 1",
+                labelGame59: "GAME 59 (Cup Grand Final)",
+                lblWinner57: "Game 57 Winner",
+                lblRank1Final: "Regular Season Rank 1 (R1)",
+                labelCupChamp: "🏆 Cup Champion (League 1st)",
+                plateTitle: "🥇 Plate Championship — Rank 4-6 Playoff",
+                plateSubtitle: "Day 10 Finals",
+                labelGame56: "GAME 56 (First Round)",
+                lblD5: "D5 (Play-in Winner)",
+                lblD6: "D6 (Play-in Winner)",
+                labelDirectPlateFinal: "Direct Plate Final Berth",
+                lblD4: "D4 (Play-in Loser)",
+                labelGame58: "GAME 58 (Plate Grand Final)",
+                lblWinner56: "Game 56 Winner",
+                lblD4Final: "D4 (Play-in Loser)",
+                labelPlateChamp: "🥇 Plate Champion (League 4th)",
+                bowlTitle: "🎖️ Bowl Championship — Rank 7-10 Playoff",
+                bowlSubtitle: "Day 10 Finals",
+                labelGame52: "GAME 52 (Semifinal 1)",
+                lblB7: "B7 (Play-in Loser)",
+                lblR10: "Regular Season Rank 10",
+                labelGame53: "GAME 53 (Semifinal 2)",
+                lblB8: "B8 (Play-in Loser)",
+                lblR9: "Regular Season Rank 9",
+                labelGame55: "GAME 55 (Bowl Grand Final)",
+                lblWinner52: "Game 52 Winner",
+                lblWinner53: "Game 53 Winner",
+                labelGame54: "GAME 54 (9th-10th Place)",
+                lblLoser52: "Game 52 Loser",
+                lblLoser53: "Game 53 Loser",
+                labelBowlChamp: "🎖️ Bowl Champion (League 7th)",
                 historyTitle: "Match History & Logs",
                 filterAll: "All Teams History",
                 noHistory: "No match records found",
@@ -522,6 +638,7 @@
                 msgResetSuccess: "Successfully reset match to Unplayed!",
                 msgAlreadyUnplayed: "This match is already in Unplayed state.",
                 msgTeamNamesSaved: "Successfully updated team names!",
+                msgBracketSaved: "Successfully updated bracket team assignments!",
                 confirmDeleteTitle: "Delete Result",
                 confirmDeleteMsg: "Are you sure you want to delete this match record?",
                 confirmResetTitle: "Reset Match Status",
@@ -530,17 +647,12 @@
             }
         };
 
-        /* --- Global State --- */
-        let matches = [];
-        let isAdminMode = false;
-        let pendingModalAction = null;
-        let currentLang = 'zh';
-
         /* --- Initialization --- */
         window.onload = function() {
             loadState();
             populateTeamSelects();
             renderTeamRenameInputs();
+            renderBracketOverrideInputs();
             applyLanguageUI();
             renderAllViews();
         };
@@ -548,6 +660,7 @@
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             applyLanguageUI();
+            renderBracketOverrideInputs();
             renderAllViews();
         }
 
@@ -567,6 +680,11 @@
             document.getElementById('adminStatusTag').innerText = t.adminStatusTag;
             document.getElementById('adminTeamRenameTitle').innerHTML = `<i class="fa-solid fa-signature text-amber-400 mr-2"></i> ${t.adminTeamRenameTitle}`;
             document.getElementById('btnSaveTeamNames').innerText = t.btnSaveTeamNames;
+            
+            document.getElementById('adminBracketOverrideTitle').innerHTML = `<i class="fa-solid fa-sitemap text-amber-400 mr-2"></i> ${t.adminBracketOverrideTitle}`;
+            document.getElementById('adminBracketOverrideDesc').innerText = t.adminBracketOverrideDesc;
+            document.getElementById('btnSaveBracketOverrides').innerText = t.btnSaveBracketOverrides;
+
             document.getElementById('adminScoreEntryTitle').innerHTML = `<i class="fa-solid fa-basketball text-amber-400 mr-2"></i> ${t.adminScoreEntryTitle}`;
             document.getElementById('lblTeamA').innerText = t.lblTeamA;
             document.getElementById('lblTeamB').innerText = t.lblTeamB;
@@ -602,6 +720,47 @@
             document.getElementById('thPtsConceded').innerText = t.thPtsConceded;
             document.getElementById('thDiff').innerText = t.thDiff;
             document.getElementById('thTotalPts').innerText = t.thTotalPts;
+
+            // Bracket Section UI Texts
+            document.getElementById('cupTitle').innerHTML = `<i class="fa-solid fa-trophy mr-2 text-red-400"></i> ${t.cupTitle}`;
+            document.getElementById('cupSubtitle').innerText = t.cupSubtitle;
+            document.getElementById('labelGame57').innerText = t.labelGame57;
+            document.getElementById('lblC2').innerText = t.lblC2;
+            document.getElementById('lblC3').innerText = t.lblC3;
+            document.getElementById('labelDirectFinal').innerText = t.labelDirectFinal;
+            document.getElementById('lblR1').innerText = t.lblR1;
+            document.getElementById('labelGame59').innerText = t.labelGame59;
+            document.getElementById('lblWinner57').innerText = t.lblWinner57;
+            document.getElementById('lblRank1Final').innerText = t.lblRank1Final;
+            document.getElementById('labelCupChamp').innerText = t.labelCupChamp;
+
+            document.getElementById('plateTitle').innerHTML = `<i class="fa-solid fa-medal mr-2 text-blue-400"></i> ${t.plateTitle}`;
+            document.getElementById('plateSubtitle').innerText = t.plateSubtitle;
+            document.getElementById('labelGame56').innerText = t.labelGame56;
+            document.getElementById('lblD5').innerText = t.lblD5;
+            document.getElementById('lblD6').innerText = t.lblD6;
+            document.getElementById('labelDirectPlateFinal').innerText = t.labelDirectPlateFinal;
+            document.getElementById('lblD4').innerText = t.lblD4;
+            document.getElementById('labelGame58').innerText = t.labelGame58;
+            document.getElementById('lblWinner56').innerText = t.lblWinner56;
+            document.getElementById('lblD4Final').innerText = t.lblD4Final;
+            document.getElementById('labelPlateChamp').innerText = t.labelPlateChamp;
+
+            document.getElementById('bowlTitle').innerHTML = `<i class="fa-solid fa-award mr-2 text-amber-400"></i> ${t.bowlTitle}`;
+            document.getElementById('bowlSubtitle').innerText = t.bowlSubtitle;
+            document.getElementById('labelGame52').innerText = t.labelGame52;
+            document.getElementById('lblB7').innerText = t.lblB7;
+            document.getElementById('lblR10').innerText = t.lblR10;
+            document.getElementById('labelGame53').innerText = t.labelGame53;
+            document.getElementById('lblB8').innerText = t.lblB8;
+            document.getElementById('lblR9').innerText = t.lblR9;
+            document.getElementById('labelGame55').innerText = t.labelGame55;
+            document.getElementById('lblWinner52').innerText = t.lblWinner52;
+            document.getElementById('lblWinner53').innerText = t.lblWinner53;
+            document.getElementById('labelGame54').innerText = t.labelGame54;
+            document.getElementById('lblLoser52').innerText = t.lblLoser52;
+            document.getElementById('lblLoser53').innerText = t.lblLoser53;
+            document.getElementById('labelBowlChamp').innerText = t.labelBowlChamp;
 
             document.getElementById('historyHeaderTitle').innerText = t.historyTitle;
 
@@ -641,23 +800,82 @@
 
             container.innerHTML = OFFICIAL_TEAMS.map((team, idx) => `
                 <div class="space-y-1">
-                    <label class="block text-[10px] text-gray-400 font-semibold">#${idx + 1} 隊</label>
+                    <label class="block text-[10px] text-gray-400 font-semibold">#${idx + 1}</label>
                     <input type="text" id="renameTeam_${idx}" value="${team}" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-amber-500">
                 </div>
             `).join('');
+        }
+
+        function renderBracketOverrideInputs() {
+            const container = document.getElementById('bracketOverridesContainer');
+            if (!container) return;
+            const t = i18n[currentLang];
+
+            const slots = [
+                { key: 'r1', label: t.bracketSlotLabels[0] },
+                { key: 'c2', label: t.bracketSlotLabels[1] },
+                { key: 'c3', label: t.bracketSlotLabels[2] },
+                { key: 'd4', label: t.bracketSlotLabels[3] },
+                { key: 'd5', label: t.bracketSlotLabels[4] },
+                { key: 'd6', label: t.bracketSlotLabels[5] },
+                { key: 'b7', label: t.bracketSlotLabels[6] },
+                { key: 'b8', label: t.bracketSlotLabels[7] },
+                { key: 'r9', label: t.bracketSlotLabels[8] },
+                { key: 'r10', label: t.bracketSlotLabels[9] }
+            ];
+            const currentValues = {};
+            slots.forEach(slot => {
+                const select = document.getElementById(`override_${slot.key}`);
+                currentValues[slot.key] = select ? select.value : (bracketOverrides[slot.key] || "");
+            });
+
+            const teamOptions = `<option value="">${t.bracketAutoOption}</option>` +
+                OFFICIAL_TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            container.innerHTML = slots.map(slot => {
+                return `
+                    <div class="space-y-1 bg-gray-900 p-2.5 rounded-xl border border-gray-800">
+                        <label class="block text-[11px] text-amber-400 font-bold">${slot.label}</label>
+                        <select id="override_${slot.key}" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-semibold focus:outline-none focus:border-amber-500">
+                            ${teamOptions}
+                        </select>
+                    </div>
+                `;
+            }).join('');
+
+            // Set selected values
+            slots.forEach(slot => {
+                const el = document.getElementById(`override_${slot.key}`);
+                if (el) el.value = currentValues[slot.key];
+            });
         }
 
         function saveTeamNames() {
             const newTeams = [];
             for (let i = 0; i < 10; i++) {
                 const val = document.getElementById(`renameTeam_${i}`).value.trim();
-                newTeams.push(val || `隊伍 ${i+1}`);
+                newTeams.push(val || `Team ${i+1}`);
             }
             OFFICIAL_TEAMS = newTeams;
             saveState();
             populateTeamSelects();
+            renderTeamRenameInputs();
+            renderBracketOverrideInputs();
             renderAllViews();
             alert(i18n[currentLang].msgTeamNamesSaved);
+        }
+
+        function saveBracketOverrides() {
+            const keys = ['r1', 'c2', 'c3', 'd4', 'd5', 'd6', 'b7', 'b8', 'r9', 'r10'];
+            keys.forEach(k => {
+                const el = document.getElementById(`override_${k}`);
+                if (el) {
+                    bracketOverrides[k] = el.value;
+                }
+            });
+            saveState();
+            renderAllViews();
+            alert(i18n[currentLang].msgBracketSaved);
         }
 
         function switchTab(tab) {
@@ -838,40 +1056,50 @@
             table.innerHTML = html;
         }
 
-        /* --- Render Brackets Dynamic Mapping --- */
+        /* --- Render Brackets Dynamic Mapping with Overrides --- */
         function renderBrackets(standings) {
             const top10 = standings.map(s => s.teamName);
+            const unassigned = currentLang === 'en' ? '[TBD]' : '[待定]';
             
-            // Populate standings slots
-            const r1 = top10[0] || '[待定]';
-            const r9 = top10[8] || '[待定]';
-            const r10 = top10[9] || '[待定]';
+            const r1 = bracketOverrides.r1 || top10[0] || unassigned;
+            const c2 = bracketOverrides.c2 || (top10[1] ? `(R2/R3)` : unassigned);
+            const c3 = bracketOverrides.c3 || (top10[2] ? `(G48)` : unassigned);
+            
+            const d4 = bracketOverrides.d4 || (top10[3] ? `(G48)` : unassigned);
+            const d5 = bracketOverrides.d5 || (top10[4] ? `(G49)` : unassigned);
+            const d6 = bracketOverrides.d6 || (top10[5] ? `(G51)` : unassigned);
 
+            const b7 = bracketOverrides.b7 || (top10[6] ? `(G51)` : unassigned);
+            const b8 = bracketOverrides.b8 || (top10[7] ? `(G50)` : unassigned);
+            const r9 = bracketOverrides.r9 || top10[8] || unassigned;
+            const r10 = bracketOverrides.r10 || top10[9] || unassigned;
+
+            // Populate Cup
             document.getElementById('bracketR1').innerText = r1;
             document.getElementById('bracketR1Final').innerText = r1;
-            document.getElementById('bracketR9').innerText = r9;
+            document.getElementById('bracketC2').innerText = c2;
+            document.getElementById('bracketC3').innerText = c3;
+            document.getElementById('bracketW57').innerText = currentLang === 'en' ? '[Game 57 Winner]' : '[G57 勝者]';
+            document.getElementById('bracketCupChampion').innerText = r1;
+
+            // Populate Plate
+            document.getElementById('bracketD5').innerText = d5;
+            document.getElementById('bracketD6').innerText = d6;
+            document.getElementById('bracketD4').innerText = d4;
+            document.getElementById('bracketD4Final').innerText = d4;
+            document.getElementById('bracketW56').innerText = currentLang === 'en' ? '[Game 56 Winner]' : '[G56 勝者]';
+            document.getElementById('bracketPlateChampion').innerText = d4;
+
+            // Populate Bowl
+            document.getElementById('bracketB7').innerText = b7;
             document.getElementById('bracketR10').innerText = r10;
-
-            // Placeholder or automatic mapping helpers for tournament seeds
-            document.getElementById('bracketC2').innerText = top10[1] ? `(R2/R3 勝者)` : '[待定]';
-            document.getElementById('bracketC3').innerText = top10[2] ? `(G48 勝者)` : '[待定]';
-            document.getElementById('bracketW57').innerText = '[G57 勝者]';
-            document.getElementById('bracketCupChampion').innerText = r1; // Default top 1 seed as example finalist
-
-            document.getElementById('bracketD5').innerText = '[G49 勝者]';
-            document.getElementById('bracketD6').innerText = '[G51 勝者]';
-            document.getElementById('bracketD4').innerText = '[G48 敗者]';
-            document.getElementById('bracketD4Final').innerText = '[G48 敗者]';
-            document.getElementById('bracketW56').innerText = '[G56 勝者]';
-            document.getElementById('bracketPlateChampion').innerText = '[待定]';
-
-            document.getElementById('bracketB7').innerText = '[G51 敗者]';
-            document.getElementById('bracketB8').innerText = '[G50 敗者]';
-            document.getElementById('bracketW52').innerText = '[G52 勝者]';
-            document.getElementById('bracketW53').innerText = '[G53 勝者]';
-            document.getElementById('bracketL52').innerText = '[G52 敗者]';
-            document.getElementById('bracketL53').innerText = '[G53 敗者]';
-            document.getElementById('bracketBowlChampion').innerText = '[待定]';
+            document.getElementById('bracketB8').innerText = b8;
+            document.getElementById('bracketR9').innerText = r9;
+            document.getElementById('bracketW52').innerText = currentLang === 'en' ? '[Game 52 Winner]' : '[G52 勝者]';
+            document.getElementById('bracketW53').innerText = currentLang === 'en' ? '[Game 53 Winner]' : '[G53 勝者]';
+            document.getElementById('bracketL52').innerText = currentLang === 'en' ? '[Game 52 Loser]' : '[G52 敗者]';
+            document.getElementById('bracketL53').innerText = currentLang === 'en' ? '[Game 53 Loser]' : '[G53 敗者]';
+            document.getElementById('bracketBowlChampion').innerText = b7;
         }
 
         function renderAllViews() {
@@ -905,6 +1133,10 @@
                 if (savedMatches) {
                     matches = JSON.parse(savedMatches);
                 }
+                const savedOverrides = localStorage.getItem(STORAGE_KEY_OVERRIDES);
+                if (savedOverrides) {
+                    bracketOverrides = JSON.parse(savedOverrides);
+                }
             } catch (e) {
                 console.error("Failed to load state from localStorage:", e);
                 OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
@@ -916,6 +1148,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(OFFICIAL_TEAMS));
                 localStorage.setItem(STORAGE_KEY_MATCHES, JSON.stringify(matches));
+                localStorage.setItem(STORAGE_KEY_OVERRIDES, JSON.stringify(bracketOverrides));
             } catch (e) {
                 console.error("Failed to save state to localStorage:", e);
             }
@@ -996,6 +1229,7 @@
                 toggleModeText.innerText = t.adminLogoutBtn;
                 modeBadge.className = "hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30";
                 modeBadgeText.innerText = t.adminViewBadge;
+                renderBracketOverrideInputs();
             } else {
                 adminPanel.classList.add('hidden');
                 toggleModeText.innerText = t.adminLoginBtn;
@@ -1174,9 +1408,3 @@
     </script>
 </body>
 </html>
-```eof
-
-### 更新亮點：
-1. **完整加入盃、碟、碗賽決賽樹狀圖分頁**：在應用中新增了「盃碟碗決賽樹狀圖」視圖標籤，讓管理員與球員能隨時查閱賽事終局架構。
-2. **管理員自訂隊名功能**：當點擊「管理員登入」（密碼：`0000`）後，會在上方展開 **10 支參賽隊伍名稱自訂面板**。管理員可直接更改所有隊伍名稱（例如改為真實球隊名稱），點擊「儲存隊名修改」後，整場聯賽的對戰矩陣、積分榜與樹狀圖會同步自動更新！
-3. **繁簡雙語與響應式流暢體驗**：維持原有的流暢性能與響應式排版設計。
