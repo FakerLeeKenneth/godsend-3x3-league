@@ -114,7 +114,7 @@
                     <i class="fa-solid fa-sitemap text-amber-400 mr-2"></i> <span id="adminBracketOverrideTitle">Manual Finals Bracket Seeding / Teams Assignment</span>
                 </h3>
                 <p class="text-[11px] text-gray-400" id="adminBracketOverrideDesc">Override automatic standings or assign custom teams into Cup, Plate, and Bowl tournament slots:</p>
-                <div class="space-y-4" id="bracketOverridesContainer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" id="bracketOverridesContainer">
                     <!-- Rendered via JS -->
                 </div>
                 <div class="flex justify-end">
@@ -438,10 +438,8 @@
                 btnSaveTeamNames: "儲存隊名修改",
                 adminBracketOverrideTitle: "自訂決賽樹狀圖參賽隊伍 (種子分配/指派)",
                 adminBracketOverrideDesc: "管理員可手動指定各晉級欄位（如 C2, C3, D4-D6, B7-B8 及 R1/R9/R10）的參賽隊伍，覆蓋自動排名或直接分配：",
-                bracketCompetitions: { cup: "盃賽", plate: "碟賽", bowl: "碗賽" },
-                bracketSlotLabels: { r1: "常規賽第 1 名 (R1)", c2: "盃賽 C2", c3: "盃賽 C3", d4: "碟賽 D4", d5: "碟賽 D5", d6: "碟賽 D6", b7: "碗賽 B7", b8: "碗賽 B8", r9: "常規賽第 9 名 (R9)", r10: "常規賽第 10 名 (R10)" },
-                bracketAutoOption: "-- 依排名自動安排 --",
-                errDuplicateBracketTeam: "每支隊伍只能分配到一個樹狀圖欄位。",
+                bracketAutoOption: "-- 按聯賽排名自動分配 --",
+                bracketSlotLabels: ["常規賽第 1 名 (R1)", "盃賽 C2", "盃賽 C3", "碟賽 D4", "碟賽 D5", "碟賽 D6", "碗賽 B7", "碗賽 B8", "常規賽第 9 名 (R9)", "常規賽第 10 名 (R10)"],
                 btnSaveBracketOverrides: "儲存樹狀圖分配",
                 adminScoreEntryTitle: "輸入對戰賽果 (常規賽)",
                 lblTeamA: "隊伍 A",
@@ -552,10 +550,8 @@
                 btnSaveTeamNames: "Save Team Names",
                 adminBracketOverrideTitle: "Manual Finals Bracket Seeding / Teams Assignment",
                 adminBracketOverrideDesc: "Assign specific teams manually into tournament slots (C2, C3, D4-D6, B7-B8, R1, R9, R10) to override automatic standings:",
-                bracketCompetitions: { cup: "Cup", plate: "Plate", bowl: "Bowl" },
-                bracketSlotLabels: { r1: "Regular Rank 1 (R1)", c2: "Cup C2", c3: "Cup C3", d4: "Plate D4", d5: "Plate D5", d6: "Plate D6", b7: "Bowl B7", b8: "Bowl B8", r9: "Regular Rank 9 (R9)", r10: "Regular Rank 10 (R10)" },
                 bracketAutoOption: "-- Auto from Standings --",
-                errDuplicateBracketTeam: "Each team can only be assigned to one bracket slot.",
+                bracketSlotLabels: ["Regular Rank 1 (R1)", "Cup C2", "Cup C3", "Plate D4", "Plate D5", "Plate D6", "Bowl B7", "Bowl B8", "Regular Rank 9 (R9)", "Regular Rank 10 (R10)"],
                 btnSaveBracketOverrides: "Save Bracket Assignments",
                 adminScoreEntryTitle: "Enter Match Result",
                 lblTeamA: "Team A",
@@ -664,6 +660,7 @@
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             applyLanguageUI();
+            renderBracketOverrideInputs();
             renderAllViews();
         }
 
@@ -800,36 +797,44 @@
         function renderTeamRenameInputs() {
             const container = document.getElementById('teamRenameInputsContainer');
             if (!container) return;
+
+            container.innerHTML = OFFICIAL_TEAMS.map((team, idx) => `
+                <div class="space-y-1">
+                    <label class="block text-[10px] text-gray-400 font-semibold">#${idx + 1}</label>
+                    <input type="text" id="renameTeam_${idx}" value="${team}" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-amber-500">
+                </div>
+            `).join('');
+        }
+
+        function renderBracketOverrideInputs() {
+            const container = document.getElementById('bracketOverridesContainer');
+            if (!container) return;
             const t = i18n[currentLang];
 
-            const competitions = [
-                { key: 'cup', slots: ['r1', 'c2', 'c3'] },
-                { key: 'plate', slots: ['d4', 'd5', 'd6'] },
-                { key: 'bowl', slots: ['b7', 'b8', 'r9', 'r10'] }
-
             const slots = [
+                { key: 'r1', label: t.bracketSlotLabels[0] },
+                { key: 'c2', label: t.bracketSlotLabels[1] },
+                { key: 'c3', label: t.bracketSlotLabels[2] },
+                { key: 'd4', label: t.bracketSlotLabels[3] },
+                { key: 'd5', label: t.bracketSlotLabels[4] },
+                { key: 'd6', label: t.bracketSlotLabels[5] },
+                { key: 'b7', label: t.bracketSlotLabels[6] },
+                { key: 'b8', label: t.bracketSlotLabels[7] },
+                { key: 'r9', label: t.bracketSlotLabels[8] },
+                { key: 'r10', label: t.bracketSlotLabels[9] }
+            ];
+            const currentValues = {};
+            slots.forEach(slot => {
+                const select = document.getElementById(`override_${slot.key}`);
+                currentValues[slot.key] = select ? select.value : (bracketOverrides[slot.key] || "");
+            });
+
             const teamOptions = `<option value="">${t.bracketAutoOption}</option>` +
-                { key: 'c2', label: 'Cup C2' },
-                { key: 'c3', label: 'Cup C3' },
-            container.innerHTML = competitions.map(competition => `
-                <section class="space-y-2">
-                    <h4 class="text-xs font-bold uppercase text-amber-400">${t.bracketCompetitions[competition.key]}</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        ${competition.slots.map(key => `
-                            <div class="space-y-1 bg-gray-900 p-2.5 rounded-xl border border-gray-800">
-                                <label for="override_${key}" class="block text-[11px] text-gray-300 font-bold">${t.bracketSlotLabels[key]}</label>
-                                <select id="override_${key}" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-semibold focus:outline-none focus:border-amber-500">
-                                    ${teamOptions}
-                                </select>
-                            </div>
-                        `).join('')}
-                    </div>
-                </section>
                 OFFICIAL_TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
 
-            competitions.flatMap(competition => competition.slots).forEach(key => {
-                const el = document.getElementById(`override_${key}`);
-                if (el) el.value = bracketOverrides[key] || "";
+            container.innerHTML = slots.map(slot => {
+                return `
+                    <div class="space-y-1 bg-gray-900 p-2.5 rounded-xl border border-gray-800">
                         <label class="block text-[11px] text-amber-400 font-bold">${slot.label}</label>
                         <select id="override_${slot.key}" class="w-full bg-gray-950 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-semibold focus:outline-none focus:border-amber-500">
                             ${teamOptions}
@@ -841,7 +846,7 @@
             // Set selected values
             slots.forEach(slot => {
                 const el = document.getElementById(`override_${slot.key}`);
-                if (el) el.value = bracketOverrides[slot.key] || "";
+                if (el) el.value = currentValues[slot.key];
             });
         }
 
@@ -862,11 +867,6 @@
 
         function saveBracketOverrides() {
             const keys = ['r1', 'c2', 'c3', 'd4', 'd5', 'd6', 'b7', 'b8', 'r9', 'r10'];
-            const selectedTeams = keys.map(key => document.getElementById(`override_${key}`).value).filter(Boolean);
-            if (new Set(selectedTeams).size !== selectedTeams.length) {
-                alert(i18n[currentLang].errDuplicateBracketTeam);
-                return;
-            }
             keys.forEach(k => {
                 const el = document.getElementById(`override_${k}`);
                 if (el) {

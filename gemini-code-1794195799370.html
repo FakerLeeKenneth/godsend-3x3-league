@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GODSEND 3X3 籃球聯賽 2026-2027</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0b0f17;
+            color: #f3f4f6;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-10">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-30 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-red-600 flex items-center justify-center text-white font-black text-xl shadow-md">
+                    <i class="fa-solid fa-basketball"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-black tracking-wider text-white">GODSEND 3X3 籃球聯賽</h1>
+                    <p class="text-[11px] text-amber-400 font-semibold tracking-wide">2026-2027 OFFICIAL SCORE & STANDINGS</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Language Toggle Button -->
+                <button onclick="toggleLanguage()" id="langToggleBtn" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-gray-800 text-amber-400 hover:bg-gray-700 border border-gray-700">
+                    <i class="fa-solid fa-globe"></i>
+                    <span id="langText">English</span>
+                </button>
+
+                <!-- Mode Indicator Badge -->
+                <div id="modeBadge" class="hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-lock mr-1.5"></i> <span id="modeBadgeText">球員視角 (唯讀)</span>
+                </div>
+
+                <!-- Admin Toggle Button -->
+                <button onclick="requestAdminAccess()" id="toggleAdminBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-700">
+                    <i class="fa-solid fa-user-shield text-amber-400"></i>
+                    <span id="toggleModeText">管理員登入</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 mt-6 flex-1 w-full space-y-6">
+
+        <!-- Scoring Rules Banner -->
+        <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2 text-xs sm:text-sm">
+                <span class="font-extrabold text-amber-400" id="ruleLabel"><i class="fa-solid fa-trophy mr-1"></i> 聯賽計分規則：</span>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold" id="ruleWin">勝 = 3分</span>
+                <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-bold" id="ruleLoss">負 = 1分</span>
+                <span class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-bold" id="ruleForfeit">缺席/棄權 = 0分</span>
+            </div>
+            <div class="text-xs text-gray-400" id="teamsCountLabel">
+                <i class="fa-solid fa-people-group mr-1"></i> 參賽隊伍：10隊
+            </div>
+        </div>
+
+        <!-- Admin Input Panel (Hidden in Player Read-Only View) -->
+        <div id="adminPanel" class="hidden bg-gray-900/90 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-5">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                <h2 class="text-base font-bold text-amber-400 flex items-center" id="adminPanelTitle">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與隊伍設定
+                </h2>
+                <span class="text-xs text-gray-400" id="adminStatusTag">登入狀態：可編輯賽程與隊名</span>
+            </div>
+
+            <!-- Team Name Customization Section -->
+            <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
+                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-signature text-amber-400 mr-2"></i> <span id="adminTeamRenameTitle">自訂 10 支參賽隊伍名稱</span>
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="teamRenameInputsContainer">
+                    <!-- Rendered via JS -->
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="saveTeamNames()" class="px-4 py-1.5 rounded-lg bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 transition">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> <span id="btnSaveTeamNames">儲存隊名修改</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Score Entry Form -->
+            <form id="scoreForm" onsubmit="handleScoreSubmit(event)" class="space-y-4 border-t border-gray-800 pt-4">
+                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-basketball text-amber-400 mr-2"></i> <span id="adminScoreEntryTitle">輸入對戰賽果 (常規賽)</span>
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
+                    
+                    <!-- Team A -->
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamA">隊伍 A</label>
+                        <select id="teamASelect" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
+                        </select>
+                    </div>
+
+                    <!-- Scores Input -->
+                    <div class="md:col-span-3 space-y-1">
+                        <label class="block text-xs text-gray-400 font-medium text-center" id="lblScoreStatus">比賽分數 / 狀態</label>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1" id="scoresContainer">
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="scoreA" min="0" max="99" value="0" class="w-full text-center bg-gray-800 border border-gray-700 rounded-xl py-2 text-lg font-black text-amber-400 focus:outline-none focus:border-amber-500">
+                                    <span class="text-gray-500 font-bold">:</span>
+                                    <input type="number" id="scoreB" min="0" max="99" value="0" class="w-full text-center bg-gray-800 border border-gray-700 rounded-xl py-2 text-lg font-black text-amber-400 focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+                            <select id="matchTypeSelect" onchange="toggleForfeitInputs(this.value)" class="bg-gray-800 border border-gray-700 rounded-xl px-2 py-2 text-xs text-gray-300 focus:outline-none focus:border-amber-500 font-medium">
+                                <option value="NORMAL">正常比分</option>
+                                <option value="FORFEIT_A">隊伍A缺席 (0-21)</option>
+                                <option value="FORFEIT_B">隊伍B缺席 (21-0)</option>
+                                <option value="RESET_UNPLAYED">重置為未賽</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Team B -->
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs text-gray-400 font-medium" id="lblTeamB">隊伍 B</label>
+                        <select id="teamBSelect" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-2">
+                    <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-sm shadow-md transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span id="btnSaveScore">儲存/更新賽果</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Player View Tab / Sections Switcher -->
+        <div class="flex flex-wrap items-center justify-between border-b border-gray-800 pb-2 gap-2">
+            <div class="flex flex-wrap space-x-2 gap-y-2">
+                <button onclick="switchTab('matrix')" id="tabBtnMatrix" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black">
+                    <i class="fa-solid fa-table-cells mr-1.5"></i> <span id="tabMatrixText">10x10 交叉對戰矩陣</span>
+                </button>
+                <button onclick="switchTab('standings')" id="tabBtnStandings" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-list-ol mr-1.5"></i> <span id="tabStandingsText">聯賽排名榜</span>
+                </button>
+                <button onclick="switchTab('brackets')" id="tabBtnBrackets" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">盃碟碗決賽樹狀圖</span>
+                </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="exportDataCSV()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold" title="Export CSV">
+                    <i class="fa-solid fa-file-csv text-emerald-400 mr-1"></i> <span class="hidden sm:inline" id="btnExportText">匯出數據</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 1: 10x10 Match Matrix View -->
+        <div id="sectionMatrix" class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <i class="fa-solid fa-chess-board text-amber-500 mr-2"></i> <span id="matrixHeaderTitle">GODSEND 3X3 官方交叉對戰表</span>
+                </h3>
+                <span class="text-xs text-gray-400" id="matrixHeaderSub">（實時顯示各隊交手勝負與比分）</span>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar border border-gray-800 rounded-xl">
+                <table id="matrixTable" class="w-full text-center border-collapse">
+                    <!-- Matrix Table Rendered via JS -->
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 2: Standings Table View (Hidden by default) -->
+        <div id="sectionStandings" class="hidden bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <i class="fa-solid fa-ranking-star text-amber-500 mr-2"></i> <span id="standingsHeaderTitle">總積分與排名榜</span>
+                </h3>
+                <span class="text-xs text-gray-400" id="standingsHeaderSub">排序：總積分 > 勝場數 > 得失分差</span>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar border border-gray-800 rounded-xl">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead class="bg-gray-950 text-gray-400 font-bold border-b border-gray-800">
+                        <tr>
+                            <th class="px-3 py-3 text-center" id="thRank">排名</th>
+                            <th class="px-4 py-3" id="thTeam">隊伍名稱</th>
+                            <th class="px-3 py-3 text-center" id="thPlayed">已賽</th>
+                            <th class="px-3 py-3 text-center text-emerald-400" id="thWin">勝 (3分)</th>
+                            <th class="px-3 py-3 text-center text-red-400" id="thLoss">負 (1分)</th>
+                            <th class="px-3 py-3 text-center text-gray-400" id="thForfeit">缺席 (0分)</th>
+                            <th class="px-3 py-3 text-center" id="thPtsScored">總得分</th>
+                            <th class="px-3 py-3 text-center" id="thPtsConceded">總失分</th>
+                            <th class="px-3 py-3 text-center" id="thDiff">得失分差</th>
+                            <th class="px-4 py-3 text-center text-amber-400 font-black" id="thTotalPts">總積分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standingsBody" class="divide-y divide-gray-800">
+                        <!-- Standings Rows Rendered via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 3: Brackets Tree View (Cup, Plate, Bowl & Play-In) -->
+        <div id="sectionBrackets" class="hidden space-y-6">
+            
+            <!-- Cup Championship Block -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-red-950 to-red-900/50 p-2.5 rounded-xl border border-red-800/50">
+                    <h3 class="text-sm font-extrabold text-red-200 flex items-center">
+                        <i class="fa-solid fa-trophy mr-2 text-red-400"></i> 🏆 盃賽 (Cup Championship) — 爭奪 1-3 名
+                    </h3>
+                    <span class="text-xs text-red-300 font-medium">Day 10 決賽</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
+                    <div class="space-y-3">
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 57 (準決賽)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">C2 (G46勝)</span><span id="bracketC2" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">C3 (G48勝)</span><span id="bracketC3" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5 border-dashed">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">直通總決賽</div>
+                            <div class="flex justify-between text-xs"><span class="text-gray-300">常規賽第 1 名</span><span id="bracketR1" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 border border-red-500/40 rounded-xl p-3 shadow-lg">
+                        <div class="text-[10px] text-red-400 font-bold mb-1">GAME 59 (盃賽總決賽)</div>
+                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">Game 57 勝者</span><span id="bracketW57" class="font-bold text-amber-400">[待定]</span></div>
+                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 1 名 (R1)</span><span id="bracketR1Final" class="font-bold text-amber-400">[待定]</span></div>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-950/60 to-amber-950/40 border border-amber-500/40 rounded-xl p-4 text-center">
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">🏆 盃賽總冠軍 (聯賽第1名)</div>
+                        <div id="bracketCupChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plate Championship Block -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-blue-950 to-blue-900/50 p-2.5 rounded-xl border border-blue-800/50">
+                    <h3 class="text-sm font-extrabold text-blue-200 flex items-center">
+                        <i class="fa-solid fa-medal mr-2 text-blue-400"></i> 🥇 碟賽 (Plate Championship) — 爭奪 4-6 名
+                    </h3>
+                    <span class="text-xs text-blue-300 font-medium">Day 10 決賽</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
+                    <div class="space-y-3">
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 56 (第一輪)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">D5 (G49勝)</span><span id="bracketD5" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">D6 (G51勝)</span><span id="bracketD6" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5 border-dashed">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">直通碟賽決賽</div>
+                            <div class="flex justify-between text-xs"><span class="text-gray-300">D4 (G48敗)</span><span id="bracketD4" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 border border-blue-500/40 rounded-xl p-3 shadow-lg">
+                        <div class="text-[10px] text-blue-400 font-bold mb-1">GAME 58 (碟賽總決賽)</div>
+                        <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">Game 56 勝者</span><span id="bracketW56" class="font-bold text-amber-400">[待定]</span></div>
+                        <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">D4 (G48敗)</span><span id="bracketD4Final" class="font-bold text-amber-400">[待定]</span></div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 rounded-xl p-4 text-center">
+                        <div class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">🥇 碟賽總冠軍 (聯賽第4名)</div>
+                        <div id="bracketPlateChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bowl Championship Block -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-amber-950 to-amber-900/50 p-2.5 rounded-xl border border-amber-800/50">
+                    <h3 class="text-sm font-extrabold text-amber-200 flex items-center">
+                        <i class="fa-solid fa-award mr-2 text-amber-400"></i> 🎖️ 碗賽 (Bowl Championship) — 爭奪 7-10 名
+                    </h3>
+                    <span class="text-xs text-amber-300 font-medium">Day 10 決賽</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-2 bg-gray-950/40 rounded-xl border border-gray-800">
+                    <div class="space-y-3">
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 52 (準決賽 1)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">B7 (G51敗)</span><span id="bracketB7" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 10 名</span><span id="bracketR10" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 53 (準決賽 2)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">B8 (G50敗)</span><span id="bracketB8" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">常規賽第 9 名</span><span id="bracketR9" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-gray-900 border border-amber-500/40 rounded-xl p-2.5">
+                            <div class="text-[10px] text-amber-400 font-bold mb-1">GAME 55 (碗賽總決賽)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">G52 勝者</span><span id="bracketW52" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">G53 勝者</span><span id="bracketW53" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-2.5">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1">GAME 54 (9-10名次賽)</div>
+                            <div class="flex justify-between text-xs py-1 border-b border-gray-800"><span class="text-gray-300">G52 敗者</span><span id="bracketL52" class="font-bold text-amber-400">[待定]</span></div>
+                            <div class="flex justify-between text-xs pt-1"><span class="text-gray-300">G53 敗者</span><span id="bracketL53" class="font-bold text-amber-400">[待定]</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-950/60 to-slate-900 border border-amber-500/40 rounded-xl p-4 text-center">
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">🎖️ 碗賽總冠軍 (聯賽第7名)</div>
+                        <div id="bracketBowlChampion" class="text-base font-black text-white">[ 待定 ]</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section 4: Recent Matches History -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i> <span id="historyHeaderTitle">比賽紀錄與動態</span>
+                </h3>
+                <select id="historyFilterSelect" onchange="filterHistory()" class="bg-gray-800 border border-gray-700 text-xs rounded-lg px-2 py-1 text-gray-300">
+                    <option value="ALL">全部隊伍紀錄</option>
+                </select>
+            </div>
+
+            <div id="matchHistoryList" class="divide-y divide-gray-800 max-h-60 overflow-y-auto custom-scrollbar border border-gray-800/80 rounded-xl bg-gray-950/40">
+                <!-- History Items Rendered via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-xs text-gray-500">
+        <p>GODSEND 3X3 BASKETBALL LEAGUE 2026-2027 &copy; ALL RIGHTS RESERVED</p>
+    </footer>
+
+    <!-- Password / Dialog Modal -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 id="modalTitle" class="text-base font-bold text-white"></h3>
+            <p id="modalMessage" class="text-xs text-gray-400"></p>
+            <div id="modalInputContainer">
+                <input type="password" id="adminPasswordInput" placeholder="請輸入管理員密碼" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div class="flex items-center justify-end space-x-2 pt-2">
+                <button onclick="closeModal()" id="btnModalCancel" class="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 text-xs font-semibold hover:bg-gray-700">取消</button>
+                <button id="modalConfirmBtn" class="px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        /* --- Constants & Config --- */
+        const DEFAULT_TEAMS = [
+            "OKC", "Tuna", "5個射手", "聖強薯", "Bad Boy", 
+            "方中", "Passione", "Titanic", "Godsend", "秋雨"
+        ];
+        
+        const ADMIN_PIN = "0000";
+        const STORAGE_KEY_MATCHES = "GODSEND_3X3_MATCHES_V3";
+        const STORAGE_KEY_TEAMS = "GODSEND_3X3_TEAMS_V3";
+
+        let OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
+
+        /* --- I18n Translations --- */
+        const i18n = {
+            zh: {
+                langBtn: "English",
+                playerViewBadge: "球員視角 (唯讀)",
+                adminViewBadge: "管理員模式 (已登入)",
+                adminLoginBtn: "管理員登入",
+                adminLogoutBtn: "退出管理員",
+                ruleLabel: '<i class="fa-solid fa-trophy mr-1"></i> 聯賽計分規則：',
+                ruleWin: "勝 = 3分",
+                ruleLoss: "負 = 1分",
+                ruleForfeit: "缺席/棄權 = 0分",
+                teamsCount: '<i class="fa-solid fa-people-group mr-1"></i> 參賽隊伍：10隊',
+                adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與隊伍設定',
+                adminStatusTag: "登入狀態：可編輯賽程與隊名",
+                adminTeamRenameTitle: "自訂 10 支參賽隊伍名稱",
+                btnSaveTeamNames: "儲存隊名修改",
+                adminScoreEntryTitle: "輸入對戰賽果 (常規賽)",
+                lblTeamA: "隊伍 A",
+                lblTeamB: "隊伍 B",
+                lblScoreStatus: "比賽分數 / 狀態",
+                optNormal: "正常比分",
+                optForfeitA: "隊伍A缺席 (0-21)",
+                optForfeitB: "隊伍B缺席 (21-0)",
+                optResetUnplayed: "重置為未賽",
+                btnSaveScore: "儲存/更新賽果",
+                tabMatrix: "10x10 交叉對戰矩陣",
+                tabStandings: "聯賽排名榜",
+                tabBrackets: "盃碟碗決賽樹狀圖",
+                btnExport: "匯出數據",
+                matrixTitle: "GODSEND 3X3 官方交叉對戰表",
+                matrixSub: "（實時顯示各隊交手勝負與比分）",
+                matrixHeaderVS: "隊伍＼對手",
+                matrixTotalPts: "總積分",
+                unplayedText: "未賽",
+                winChar: "勝",
+                lossChar: "負",
+                standingsTitle: "總積分與排名榜",
+                standingsSub: "排序：總積分 > 勝場數 > 得失分差",
+                thRank: "排名",
+                thTeam: "隊伍名稱",
+                thPlayed: "已賽",
+                thWin: "勝 (3分)",
+                thLoss: "負 (1分)",
+                thForfeit: "缺席 (0分)",
+                thPtsScored: "總得分",
+                thPtsConceded: "總失分",
+                thDiff: "得失分差",
+                thTotalPts: "總積分",
+                historyTitle: "比賽紀錄與動態",
+                filterAll: "全部隊伍紀錄",
+                noHistory: "暫無相關賽果紀錄",
+                btnResetUnplayed: "重置為未賽",
+                btnDelete: "刪除",
+                passPlaceholder: "請輸入管理員密碼",
+                btnCancel: "取消",
+                btnConfirm: "確認",
+                modalAdminAuthTitle: "管理員身份驗證",
+                modalAdminAuthMsg: "請輸入管理員密碼以開啟賽事修改功能：",
+                errWrongPass: "密碼錯誤！無法開啟管理員權限。",
+                errSameTeam: "錯誤：請選擇兩隊不同的隊伍進行對戰！",
+                errInvalidScore: "請輸入有效的比賽分數！",
+                msgResetSuccess: "已成功將對戰紀錄重置為「未賽」！",
+                msgAlreadyUnplayed: "該對戰原本就屬於「未賽」狀態。",
+                msgTeamNamesSaved: "已成功更新 10 支隊伍名稱！",
+                confirmDeleteTitle: "刪除賽果",
+                confirmDeleteMsg: "確定要刪除這場比賽紀錄嗎？",
+                confirmResetTitle: "重置對戰狀態",
+                confirmResetMsg: "確定要將此場比賽重置為「未賽」狀態嗎？",
+                forfeitTag: "缺席/棄權"
+            },
+            en: {
+                langBtn: "繁體中文",
+                playerViewBadge: "Player View (Read-Only)",
+                adminViewBadge: "Admin Mode (Logged In)",
+                adminLoginBtn: "Admin Login",
+                adminLogoutBtn: "Exit Admin",
+                ruleLabel: '<i class="fa-solid fa-trophy mr-1"></i> League Rules:',
+                ruleWin: "Win = 3 pts",
+                ruleLoss: "Loss = 1 pt",
+                ruleForfeit: "Forfeit = 0 pts",
+                teamsCount: '<i class="fa-solid fa-people-group mr-1"></i> Teams: 10',
+                adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> Admin Management & Settings',
+                adminStatusTag: "Status: Live Editing Enabled",
+                adminTeamRenameTitle: "Customize 10 Team Names",
+                btnSaveTeamNames: "Save Team Names",
+                adminScoreEntryTitle: "Enter Match Result",
+                lblTeamA: "Team A",
+                lblTeamB: "Team B",
+                lblScoreStatus: "Score / Match Status",
+                optNormal: "Normal Score",
+                optForfeitA: "Team A Forfeit (0-21)",
+                optForfeitB: "Team B Forfeit (21-0)",
+                optResetUnplayed: "Reset to Unplayed",
+                btnSaveScore: "Save / Update Match",
+                tabMatrix: "10x10 Match Matrix",
+                tabStandings: "League Standings",
+                tabBrackets: "Finals Brackets",
+                btnExport: "Export CSV",
+                matrixTitle: "GODSEND 3X3 Match Matrix",
+                matrixSub: "(Live head-to-head results & scores)",
+                matrixHeaderVS: "Team \\ Opponent",
+                matrixTotalPts: "PTS",
+                unplayedText: "NS",
+                winChar: "W",
+                lossChar: "L",
+                standingsTitle: "League Leaderboard",
+                standingsSub: "Order: Points > Wins > Point Diff",
+                thRank: "Rank",
+                thTeam: "Team",
+                thPlayed: "GP",
+                thWin: "W (3pts)",
+                thLoss: "L (1pt)",
+                thForfeit: "F (0pts)",
+                thPtsScored: "PF",
+                thPtsConceded: "PA",
+                thDiff: "DIFF",
+                thTotalPts: "PTS",
+                historyTitle: "Match History & Logs",
+                filterAll: "All Teams History",
+                noHistory: "No match records found",
+                btnResetUnplayed: "Reset to Unplayed",
+                btnDelete: "Delete",
+                passPlaceholder: "Enter admin password",
+                btnCancel: "Cancel",
+                btnConfirm: "Confirm",
+                modalAdminAuthTitle: "Admin Authentication",
+                modalAdminAuthMsg: "Please enter the admin password:",
+                errWrongPass: "Incorrect password! Access denied.",
+                errSameTeam: "Error: Please select two different teams!",
+                errInvalidScore: "Please enter valid scores!",
+                msgResetSuccess: "Successfully reset match to Unplayed!",
+                msgAlreadyUnplayed: "This match is already in Unplayed state.",
+                msgTeamNamesSaved: "Successfully updated team names!",
+                confirmDeleteTitle: "Delete Result",
+                confirmDeleteMsg: "Are you sure you want to delete this match record?",
+                confirmResetTitle: "Reset Match Status",
+                confirmResetMsg: "Are you sure you want to reset this match to Unplayed?",
+                forfeitTag: "Forfeit/Absent"
+            }
+        };
+
+        /* --- Global State --- */
+        let matches = [];
+        let isAdminMode = false;
+        let pendingModalAction = null;
+        let currentLang = 'zh';
+
+        /* --- Initialization --- */
+        window.onload = function() {
+            loadState();
+            populateTeamSelects();
+            renderTeamRenameInputs();
+            applyLanguageUI();
+            renderAllViews();
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            applyLanguageUI();
+            renderAllViews();
+        }
+
+        function applyLanguageUI() {
+            const t = i18n[currentLang];
+            document.getElementById('langText').innerText = t.langBtn;
+            document.getElementById('modeBadgeText').innerText = isAdminMode ? t.adminViewBadge : t.playerViewBadge;
+            document.getElementById('toggleModeText').innerText = isAdminMode ? t.adminLogoutBtn : t.adminLoginBtn;
+            
+            document.getElementById('ruleLabel').innerHTML = t.ruleLabel;
+            document.getElementById('ruleWin').innerText = t.ruleWin;
+            document.getElementById('ruleLoss').innerText = t.ruleLoss;
+            document.getElementById('ruleForfeit').innerText = t.ruleForfeit;
+            document.getElementById('teamsCountLabel').innerHTML = t.teamsCount;
+
+            document.getElementById('adminPanelTitle').innerHTML = t.adminPanelTitle;
+            document.getElementById('adminStatusTag').innerText = t.adminStatusTag;
+            document.getElementById('adminTeamRenameTitle').innerHTML = `<i class="fa-solid fa-signature text-amber-400 mr-2"></i> ${t.adminTeamRenameTitle}`;
+            document.getElementById('btnSaveTeamNames').innerText = t.btnSaveTeamNames;
+            document.getElementById('adminScoreEntryTitle').innerHTML = `<i class="fa-solid fa-basketball text-amber-400 mr-2"></i> ${t.adminScoreEntryTitle}`;
+            document.getElementById('lblTeamA').innerText = t.lblTeamA;
+            document.getElementById('lblTeamB').innerText = t.lblTeamB;
+            document.getElementById('lblScoreStatus').innerText = t.lblScoreStatus;
+
+            const matchTypeSelect = document.getElementById('matchTypeSelect');
+            if (matchTypeSelect) {
+                matchTypeSelect.options[0].text = t.optNormal;
+                matchTypeSelect.options[1].text = t.optForfeitA;
+                matchTypeSelect.options[2].text = t.optForfeitB;
+                matchTypeSelect.options[3].text = t.optResetUnplayed;
+            }
+
+            document.getElementById('btnSaveScore').innerText = t.btnSaveScore;
+            document.getElementById('tabMatrixText').innerText = t.tabMatrix;
+            document.getElementById('tabStandingsText').innerText = t.tabStandings;
+            document.getElementById('tabBracketsText').innerText = t.tabBrackets;
+            document.getElementById('btnExportText').innerText = t.btnExport;
+
+            document.getElementById('matrixHeaderTitle').innerText = t.matrixTitle;
+            document.getElementById('matrixHeaderSub').innerText = t.matrixSub;
+
+            document.getElementById('standingsHeaderTitle').innerText = t.standingsTitle;
+            document.getElementById('standingsHeaderSub').innerText = t.standingsSub;
+
+            document.getElementById('thRank').innerText = t.thRank;
+            document.getElementById('thTeam').innerText = t.thTeam;
+            document.getElementById('thPlayed').innerText = t.thPlayed;
+            document.getElementById('thWin').innerText = t.thWin;
+            document.getElementById('thLoss').innerText = t.thLoss;
+            document.getElementById('thForfeit').innerText = t.thForfeit;
+            document.getElementById('thPtsScored').innerText = t.thPtsScored;
+            document.getElementById('thPtsConceded').innerText = t.thPtsConceded;
+            document.getElementById('thDiff').innerText = t.thDiff;
+            document.getElementById('thTotalPts').innerText = t.thTotalPts;
+
+            document.getElementById('historyHeaderTitle').innerText = t.historyTitle;
+
+            const filterSelect = document.getElementById('historyFilterSelect');
+            if (filterSelect && filterSelect.options[0]) {
+                filterSelect.options[0].text = t.filterAll;
+            }
+
+            document.getElementById('adminPasswordInput').placeholder = t.passPlaceholder;
+            document.getElementById('btnModalCancel').innerText = t.btnCancel;
+            document.getElementById('modalConfirmBtn').innerText = t.btnConfirm;
+        }
+
+        function populateTeamSelects() {
+            const teamASelect = document.getElementById('teamASelect');
+            const teamBSelect = document.getElementById('teamBSelect');
+            const historyFilterSelect = document.getElementById('historyFilterSelect');
+
+            if (!teamASelect || !teamBSelect) return;
+
+            const currentA = teamASelect.value;
+            const currentB = teamBSelect.value;
+            const currentFilter = historyFilterSelect ? historyFilterSelect.value : 'ALL';
+
+            teamASelect.innerHTML = OFFICIAL_TEAMS.map(t => `<option value="${t}" ${t === currentA ? 'selected' : ''}>${t}</option>`).join('');
+            teamBSelect.innerHTML = OFFICIAL_TEAMS.map((t, idx) => `<option value="${t}" ${t === currentB || (idx === 1 && !currentB) ? 'selected' : ''}>${t}</option>`).join('');
+
+            if (historyFilterSelect) {
+                historyFilterSelect.innerHTML = `<option value="ALL">${i18n[currentLang].filterAll}</option>` +
+                    OFFICIAL_TEAMS.map(t => `<option value="${t}" ${t === currentFilter ? 'selected' : ''}>${t}</option>`).join('');
+            }
+        }
+
+        function renderTeamRenameInputs() {
+            const container = document.getElementById('teamRenameInputsContainer');
+            if (!container) return;
+
+            container.innerHTML = OFFICIAL_TEAMS.map((team, idx) => `
+                <div class="space-y-1">
+                    <label class="block text-[10px] text-gray-400 font-semibold">#${idx + 1} 隊</label>
+                    <input type="text" id="renameTeam_${idx}" value="${team}" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-amber-500">
+                </div>
+            `).join('');
+        }
+
+        function saveTeamNames() {
+            const newTeams = [];
+            for (let i = 0; i < 10; i++) {
+                const val = document.getElementById(`renameTeam_${i}`).value.trim();
+                newTeams.push(val || `隊伍 ${i+1}`);
+            }
+            OFFICIAL_TEAMS = newTeams;
+            saveState();
+            populateTeamSelects();
+            renderAllViews();
+            alert(i18n[currentLang].msgTeamNamesSaved);
+        }
+
+        function switchTab(tab) {
+            const btnMatrix = document.getElementById('tabBtnMatrix');
+            const btnStandings = document.getElementById('tabBtnStandings');
+            const btnBrackets = document.getElementById('tabBtnBrackets');
+
+            const secMatrix = document.getElementById('sectionMatrix');
+            const secStandings = document.getElementById('sectionStandings');
+            const secBrackets = document.getElementById('sectionBrackets');
+
+            // Reset buttons
+            [btnMatrix, btnStandings, btnBrackets].forEach(b => {
+                b.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white";
+            });
+            [secMatrix, secStandings, secBrackets].forEach(s => s.classList.add('hidden'));
+
+            if (tab === 'matrix') {
+                btnMatrix.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
+                secMatrix.classList.remove('hidden');
+            } else if (tab === 'standings') {
+                btnStandings.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
+                secStandings.classList.remove('hidden');
+            } else if (tab === 'brackets') {
+                btnBrackets.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
+                secBrackets.classList.remove('hidden');
+            }
+        }
+
+        /* --- Calculations & Leaderboard --- */
+        function calculateStandings() {
+            const stats = {};
+            OFFICIAL_TEAMS.forEach(team => {
+                stats[team] = {
+                    teamName: team,
+                    played: 0,
+                    wins: 0,
+                    losses: 0,
+                    forfeits: 0,
+                    pointsScored: 0,
+                    pointsConceded: 0,
+                    pointDiff: 0,
+                    totalPoints: 0
+                };
+            });
+
+            matches.forEach(m => {
+                const teamA = stats[m.teamA];
+                const teamB = stats[m.teamB];
+                if (!teamA || !teamB) return;
+
+                teamA.played++;
+                teamB.played++;
+
+                teamA.pointsScored += m.scoreA;
+                teamA.pointsConceded += m.scoreB;
+                teamB.pointsScored += m.scoreB;
+                teamB.pointsConceded += m.scoreA;
+
+                if (m.scoreA > m.scoreB) {
+                    teamA.wins++;
+                    teamA.totalPoints += 3;
+
+                    if (m.forfeitB) {
+                        teamB.forfeits++;
+                        teamB.totalPoints += 0;
+                    } else {
+                        teamB.losses++;
+                        teamB.totalPoints += 1;
+                    }
+                } else if (m.scoreB > m.scoreA) {
+                    teamB.wins++;
+                    teamB.totalPoints += 3;
+
+                    if (m.forfeitA) {
+                        teamA.forfeits++;
+                        teamA.totalPoints += 0;
+                    } else {
+                        teamB.losses++;
+                        teamB.totalPoints += 1;
+                    }
+                }
+            });
+
+            Object.values(stats).forEach(s => {
+                s.pointDiff = s.pointsScored - s.pointsConceded;
+            });
+
+            return Object.values(stats).sort((a, b) => {
+                if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.pointDiff - a.pointDiff;
+            });
+        }
+
+        function renderStandingsTable(standings) {
+            const tbody = document.getElementById('standingsBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = standings.map((team, index) => {
+                let rankBadge = `<span class="font-bold text-gray-400">${index + 1}</span>`;
+                if (index === 0) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-500 text-black font-black text-xs flex items-center justify-center mx-auto">1</span>`;
+                if (index === 1) rankBadge = `<span class="w-6 h-6 rounded-full bg-gray-300 text-black font-black text-xs flex items-center justify-center mx-auto">2</span>`;
+                if (index === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-black text-xs flex items-center justify-center mx-auto">3</span>`;
+
+                const diffFormatted = team.pointDiff > 0 ? `+${team.pointDiff}` : team.pointDiff;
+
+                return `
+                    <tr class="hover:bg-gray-800/50 transition">
+                        <td class="px-3 py-3 text-center">${rankBadge}</td>
+                        <td class="px-4 py-3 font-bold text-white">${team.teamName}</td>
+                        <td class="px-3 py-3 text-center font-semibold text-gray-300">${team.played}</td>
+                        <td class="px-3 py-3 text-center font-extrabold text-emerald-400 bg-emerald-500/5">${team.wins}</td>
+                        <td class="px-3 py-3 text-center font-extrabold text-red-400 bg-red-500/5">${team.losses}</td>
+                        <td class="px-3 py-3 text-center text-gray-400">${team.forfeits}</td>
+                        <td class="px-3 py-3 text-center text-gray-300">${team.pointsScored}</td>
+                        <td class="px-3 py-3 text-center text-gray-300">${team.pointsConceded}</td>
+                        <td class="px-3 py-3 text-center font-bold ${team.pointDiff > 0 ? 'text-emerald-400' : (team.pointDiff < 0 ? 'text-red-400' : 'text-gray-400')}">${diffFormatted}</td>
+                        <td class="px-4 py-3 text-center text-base font-black text-amber-400 bg-amber-500/10">${team.totalPoints}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* --- Matrix Rendering --- */
+        function renderMatrixTable() {
+            const table = document.getElementById('matrixTable');
+            if (!table) return;
+            const t = i18n[currentLang];
+
+            let html = `<thead><tr class="bg-gray-950 text-gray-400 text-xs font-bold border-b border-gray-800">`;
+            html += `<th class="px-3 py-3 border-r border-gray-800 min-w-[100px] text-left">${t.matrixHeaderVS}</th>`;
+            OFFICIAL_TEAMS.forEach(team => {
+                html += `<th class="px-2 py-2 min-w-[75px] text-center">${team}</th>`;
+            });
+            html += `<th class="px-3 py-3 border-l border-gray-800 text-amber-400">${t.matrixTotalPts}</th>`;
+            html += `</tr></thead><tbody class="divide-y divide-gray-800 text-xs">`;
+
+            const standingsMap = {};
+            calculateStandings().forEach(s => { standingsMap[s.teamName] = s.totalPoints; });
+
+            OFFICIAL_TEAMS.forEach((teamRow) => {
+                html += `<tr class="hover:bg-gray-800/40 transition">`;
+                html += `<td class="px-3 py-2.5 font-bold text-white border-r border-gray-800 text-left bg-gray-950/60">${teamRow}</td>`;
+
+                OFFICIAL_TEAMS.forEach((teamCol) => {
+                    if (teamRow === teamCol) {
+                        html += `<td class="bg-gray-950 text-gray-700 select-none">/</td>`;
+                    } else {
+                        const match = matches.find(m => 
+                            (m.teamA === teamRow && m.teamB === teamCol) || 
+                            (m.teamA === teamCol && m.teamB === teamRow)
+                        );
+
+                        if (!match) {
+                            html += `<td class="text-gray-600 font-medium">${t.unplayedText}</td>`;
+                        } else {
+                            const isTeamA = match.teamA === teamRow;
+                            const scoreSelf = isTeamA ? match.scoreA : match.scoreB;
+                            const scoreOpponent = isTeamA ? match.scoreB : match.scoreA;
+                            const isWin = scoreSelf > scoreOpponent;
+
+                            const cellBg = isWin ? 'bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20' : 'bg-red-500/10 text-red-400 font-medium border border-red-500/20';
+
+                            html += `<td class="${cellBg} py-2 px-1">
+                                <div class="text-[11px] font-black">${isWin ? t.winChar : t.lossChar}</div>
+                                <div class="text-[10px] opacity-90">${scoreSelf}-${scoreOpponent}</div>
+                            </td>`;
+                        }
+                    }
+                });
+
+                html += `<td class="px-3 py-2.5 font-black text-amber-400 border-l border-gray-800 bg-amber-500/5">${standingsMap[teamRow] || 0}</td>`;
+                html += `</tr>`;
+            });
+
+            html += `</tbody>`;
+            table.innerHTML = html;
+        }
+
+        /* --- Render Brackets Dynamic Mapping --- */
+        function renderBrackets(standings) {
+            const top10 = standings.map(s => s.teamName);
+            
+            // Populate standings slots
+            const r1 = top10[0] || '[待定]';
+            const r9 = top10[8] || '[待定]';
+            const r10 = top10[9] || '[待定]';
+
+            document.getElementById('bracketR1').innerText = r1;
+            document.getElementById('bracketR1Final').innerText = r1;
+            document.getElementById('bracketR9').innerText = r9;
+            document.getElementById('bracketR10').innerText = r10;
+
+            // Placeholder or automatic mapping helpers for tournament seeds
+            document.getElementById('bracketC2').innerText = top10[1] ? `(R2/R3 勝者)` : '[待定]';
+            document.getElementById('bracketC3').innerText = top10[2] ? `(G48 勝者)` : '[待定]';
+            document.getElementById('bracketW57').innerText = '[G57 勝者]';
+            document.getElementById('bracketCupChampion').innerText = r1; // Default top 1 seed as example finalist
+
+            document.getElementById('bracketD5').innerText = '[G49 勝者]';
+            document.getElementById('bracketD6').innerText = '[G51 勝者]';
+            document.getElementById('bracketD4').innerText = '[G48 敗者]';
+            document.getElementById('bracketD4Final').innerText = '[G48 敗者]';
+            document.getElementById('bracketW56').innerText = '[G56 勝者]';
+            document.getElementById('bracketPlateChampion').innerText = '[待定]';
+
+            document.getElementById('bracketB7').innerText = '[G51 敗者]';
+            document.getElementById('bracketB8').innerText = '[G50 敗者]';
+            document.getElementById('bracketW52').innerText = '[G52 勝者]';
+            document.getElementById('bracketW53').innerText = '[G53 勝者]';
+            document.getElementById('bracketL52').innerText = '[G52 敗者]';
+            document.getElementById('bracketL53').innerText = '[G53 敗者]';
+            document.getElementById('bracketBowlChampion').innerText = '[待定]';
+        }
+
+        function renderAllViews() {
+            const standings = calculateStandings();
+            renderStandingsTable(standings);
+            renderMatrixTable();
+            renderBrackets(standings);
+            renderMatchHistory();
+        }
+
+        function deleteMatch(id) {
+            const t = i18n[currentLang];
+            showConfirmModal(t.confirmDeleteTitle, t.confirmDeleteMsg, () => {
+                matches = matches.filter(m => m.id !== id);
+                saveState();
+                renderAllViews();
+            });
+        }
+
+        function filterHistory() {
+            renderMatchHistory();
+        }
+
+        function loadState() {
+            try {
+                const savedTeams = localStorage.getItem(STORAGE_KEY_TEAMS);
+                if (savedTeams) {
+                    OFFICIAL_TEAMS = JSON.parse(savedTeams);
+                }
+                const savedMatches = localStorage.getItem(STORAGE_KEY_MATCHES);
+                if (savedMatches) {
+                    matches = JSON.parse(savedMatches);
+                }
+            } catch (e) {
+                console.error("Failed to load state from localStorage:", e);
+                OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
+                matches = [];
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(OFFICIAL_TEAMS));
+                localStorage.setItem(STORAGE_KEY_MATCHES, JSON.stringify(matches));
+            } catch (e) {
+                console.error("Failed to save state to localStorage:", e);
+            }
+        }
+
+        /* --- Modal Dialog Helpers --- */
+        function showModal(title, message, isInputMode, onConfirm) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            const inputContainer = document.getElementById('modalInputContainer');
+            if (isInputMode) {
+                inputContainer.classList.remove('hidden');
+                document.getElementById('adminPasswordInput').value = '';
+            } else {
+                inputContainer.classList.add('hidden');
+            }
+
+            pendingModalAction = onConfirm;
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                if (pendingModalAction) pendingModalAction();
+            };
+
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+
+        function showConfirmModal(title, message, onConfirm) {
+            showModal(title, message, false, () => {
+                onConfirm();
+                closeModal();
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            pendingModalAction = null;
+        }
+
+        /* --- Admin Lock / Security --- */
+        function requestAdminAccess() {
+            const t = i18n[currentLang];
+            if (isAdminMode) {
+                lockAdminMode();
+                return;
+            }
+
+            showModal(
+                t.modalAdminAuthTitle,
+                t.modalAdminAuthMsg,
+                true,
+                () => {
+                    const inputPass = document.getElementById('adminPasswordInput').value;
+                    if (inputPass === ADMIN_PIN) {
+                        isAdminMode = true;
+                        updateAdminUI();
+                        closeModal();
+                    } else {
+                        alert(t.errWrongPass);
+                    }
+                }
+            );
+        }
+
+        function lockAdminMode() {
+            isAdminMode = false;
+            updateAdminUI();
+        }
+
+        function updateAdminUI() {
+            const adminPanel = document.getElementById('adminPanel');
+            const toggleModeText = document.getElementById('toggleModeText');
+            const modeBadge = document.getElementById('modeBadge');
+            const modeBadgeText = document.getElementById('modeBadgeText');
+            const t = i18n[currentLang];
+
+            if (isAdminMode) {
+                adminPanel.classList.remove('hidden');
+                toggleModeText.innerText = t.adminLogoutBtn;
+                modeBadge.className = "hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30";
+                modeBadgeText.innerText = t.adminViewBadge;
+            } else {
+                adminPanel.classList.add('hidden');
+                toggleModeText.innerText = t.adminLoginBtn;
+                modeBadge.className = "hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                modeBadgeText.innerText = t.playerViewBadge;
+            }
+            renderMatchHistory();
+        }
+
+        /* --- Score Form Handling --- */
+        function toggleForfeitInputs(status) {
+            const scoreA = document.getElementById('scoreA');
+            const scoreB = document.getElementById('scoreB');
+            const container = document.getElementById('scoresContainer');
+
+            if (status === 'FORFEIT_A') {
+                scoreA.value = 0;
+                scoreB.value = 21;
+                scoreA.disabled = true;
+                scoreB.disabled = true;
+                container.classList.add('opacity-50');
+            } else if (status === 'FORFEIT_B') {
+                scoreA.value = 21;
+                scoreB.value = 0;
+                scoreA.disabled = true;
+                scoreB.disabled = true;
+                container.classList.add('opacity-50');
+            } else if (status === 'RESET_UNPLAYED') {
+                scoreA.value = 0;
+                scoreB.value = 0;
+                scoreA.disabled = true;
+                scoreB.disabled = true;
+                container.classList.add('opacity-50');
+            } else {
+                scoreA.disabled = false;
+                scoreB.disabled = false;
+                container.classList.remove('opacity-50');
+            }
+        }
+
+        function handleScoreSubmit(event) {
+            event.preventDefault();
+            const t = i18n[currentLang];
+            const teamA = document.getElementById('teamASelect').value;
+            const teamB = document.getElementById('teamBSelect').value;
+            const matchType = document.getElementById('matchTypeSelect').value;
+
+            if (teamA === teamB) {
+                alert(t.errSameTeam);
+                return;
+            }
+
+            const existingIndex = matches.findIndex(
+                m => (m.teamA === teamA && m.teamB === teamB) || (m.teamA === teamB && m.teamB === teamA)
+            );
+
+            if (matchType === 'RESET_UNPLAYED') {
+                if (existingIndex >= 0) {
+                    matches.splice(existingIndex, 1);
+                    saveState();
+                    renderAllViews();
+                    alert(t.msgResetSuccess);
+                } else {
+                    alert(t.msgAlreadyUnplayed);
+                }
+                document.getElementById('scoreForm').reset();
+                toggleForfeitInputs('NORMAL');
+                return;
+            }
+
+            let scoreA = parseInt(document.getElementById('scoreA').value, 10);
+            let scoreB = parseInt(document.getElementById('scoreB').value, 10);
+
+            if (isNaN(scoreA) || isNaN(scoreB)) {
+                alert(t.errInvalidScore);
+                return;
+            }
+
+            const forfeitA = matchType === 'FORFEIT_A';
+            const forfeitB = matchType === 'FORFEIT_B';
+
+            const matchData = {
+                id: existingIndex >= 0 ? matches[existingIndex].id : Date.now(),
+                teamA,
+                teamB,
+                scoreA: forfeitA ? 0 : (forfeitB ? 21 : scoreA),
+                scoreB: forfeitA ? 21 : (forfeitB ? 0 : scoreB),
+                forfeitA,
+                forfeitB,
+                timestamp: new Date().toISOString()
+            };
+
+            if (existingIndex >= 0) {
+                matches[existingIndex] = matchData;
+            } else {
+                matches.push(matchData);
+            }
+
+            saveState();
+            renderAllViews();
+
+            document.getElementById('scoreForm').reset();
+            toggleForfeitInputs('NORMAL');
+        }
+
+        function resetMatchToUnplayed(id) {
+            const t = i18n[currentLang];
+            showConfirmModal(t.confirmResetTitle, t.confirmResetMsg, () => {
+                matches = matches.filter(m => m.id !== id);
+                saveState();
+                renderAllViews();
+            });
+        }
+
+        function renderMatchHistory() {
+            const container = document.getElementById('matchHistoryList');
+            if (!container) return;
+            const t = i18n[currentLang];
+
+            const filter = document.getElementById('historyFilterSelect') ? document.getElementById('historyFilterSelect').value : 'ALL';
+            
+            let filteredMatches = matches;
+            if (filter !== 'ALL') {
+                filteredMatches = matches.filter(m => m.teamA === filter || m.teamB === filter);
+            }
+
+            if (filteredMatches.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-gray-500 text-xs">${t.noHistory}</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredMatches.slice().reverse().map(m => {
+                const dateStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div class="p-3.5 flex items-center justify-between hover:bg-gray-800/30 transition text-xs sm:text-sm">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs text-gray-500">${dateStr}</span>
+                            <div class="flex items-center space-x-2 font-bold">
+                                <span class="${m.scoreA > m.scoreB ? 'text-emerald-400' : 'text-gray-300'}">${m.teamA}</span>
+                                <span class="bg-gray-800 px-2.5 py-1 rounded text-amber-400 font-mono text-xs">${m.scoreA} : ${m.scoreB}</span>
+                                <span class="${m.scoreB > m.scoreA ? 'text-emerald-400' : 'text-gray-300'}">${m.teamB}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${m.forfeitA || m.forfeitB ? `<span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">${t.forfeitTag}</span>` : ''}
+                            ${isAdminMode ? `
+                                <button onclick="resetMatchToUnplayed(${m.id})" class="text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-1 rounded-lg transition font-medium" title="${t.btnResetUnplayed}">
+                                    <i class="fa-solid fa-rotate-left mr-1"></i>${t.btnResetUnplayed}
+                                </button>
+                                <button onclick="deleteMatch(${m.id})" class="text-xs text-red-400 hover:text-red-300 p-1 transition" title="${t.btnDelete}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* --- Data Export --- */
+        function exportDataCSV() {
+            let csv = "ID,Team A,Score A,Score B,Team B,Forfeit A,Forfeit B,Timestamp\n";
+            matches.forEach(m => {
+                csv += `"${m.id}","${m.teamA}",${m.scoreA},${m.scoreB},"${m.teamB}",${m.forfeitA},${m.forfeitB},"${m.timestamp}"\n`;
+            });
+
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GODSEND_3X3_Matches_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
+```eof
+
+### 更新亮點：
+1. **完整加入盃、碟、碗賽決賽樹狀圖分頁**：在應用中新增了「盃碟碗決賽樹狀圖」視圖標籤，讓管理員與球員能隨時查閱賽事終局架構。
+2. **管理員自訂隊名功能**：當點擊「管理員登入」（密碼：`0000`）後，會在上方展開 **10 支參賽隊伍名稱自訂面板**。管理員可直接更改所有隊伍名稱（例如改為真實球隊名稱），點擊「儲存隊名修改」後，整場聯賽的對戰矩陣、積分榜與樹狀圖會同步自動更新！
+3. **繁簡雙語與響應式流暢體驗**：維持原有的流暢性能與響應式排版設計。
