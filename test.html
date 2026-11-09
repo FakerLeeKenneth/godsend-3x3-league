@@ -158,12 +158,15 @@
                 </div>
             </form>
 
-            <!-- Cup, Plate, Bowl Bracket Custom Teams Assignment (Admin Only) -->
+            <!-- Play-in and finals team assignments (Admin Only) -->
             <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3 pt-4 border-t border-gray-800">
                 <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-sitemap mr-2"></i> <span id="adminBracketAssignTitle">盃、碟、碗賽決賽對陣隊伍指定 (管理員專用)</span>
+                    <i class="fa-solid fa-sitemap mr-2"></i> <span id="adminBracketAssignTitle">附加賽及盃、碟、碗賽隊伍指定 (管理員專用)</span>
                 </h3>
-                <p class="text-[11px] text-gray-400" id="adminBracketAssignDesc">管理者須為盃、碟、碗賽各參賽位置手動指定隊伍；系統不會按排名或種子自動帶入。</p>
+                <p class="text-[11px] text-gray-400" id="adminBracketAssignDesc">管理者須手動指定附加賽和決賽的各個位置；系統不會自動帶入排名或勝負隊伍。</p>
+
+                <h4 class="text-xs font-bold text-violet-400" id="adminPlayInTitle">附加賽陣容及勝負指定</h4>
+                <div id="playInAdminGames" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Cup Block Assign -->
@@ -276,7 +279,7 @@
                     <i class="fa-solid fa-list-ol mr-1.5"></i> <span id="tabStandingsText">聯賽排名榜</span>
                 </button>
                 <button onclick="switchTab('brackets')" id="tabBtnBrackets" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
-                    <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">盃碟碗決賽樹狀圖</span>
+                    <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">附加賽及盃碟碗決賽</span>
                 </button>
             </div>
             <div class="flex items-center space-x-2">
@@ -336,7 +339,19 @@
 
         <!-- Section 3: Brackets Tree View (Cup, Plate, Bowl & Play-In) -->
         <div id="sectionBrackets" class="hidden space-y-6">
-            
+
+            <!-- Day 9 play-in -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-violet-950 to-violet-900/50 p-2.5 rounded-xl border border-violet-800/50">
+                    <h3 class="text-sm font-extrabold text-violet-200 flex items-center">
+                        <i class="fa-solid fa-sitemap mr-2 text-violet-400"></i> <span id="playInHeaderTitle">附加賽</span>
+                    </h3>
+                    <span class="text-xs text-violet-300 font-medium" id="playInDayTag">Day 9</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-3" id="playInDesc"></p>
+                <div id="playInGames" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
             <!-- Cup Championship Block -->
             <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between mb-3 bg-gradient-to-r from-red-950 to-red-900/50 p-2.5 rounded-xl border border-red-800/50">
@@ -493,6 +508,8 @@
         const STORAGE_KEY_MATCHES = "GODSEND_3X3_MATCHES_V4";
         const STORAGE_KEY_TEAMS = "GODSEND_3X3_TEAMS_V4";
         const STORAGE_KEY_BRACKETS = "GODSEND_3X3_BRACKETS_V4";
+        const PLAY_IN_GAMES = [46, 47, 48, 49, 50, 51];
+        const PLAY_IN_FIELDS = ['a', 'b', 'w', 'l'];
 
         let OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
         
@@ -547,8 +564,21 @@
                 optForfeitB: "隊伍B缺席 (21-0)",
                 optResetUnplayed: "重置為未賽",
                 btnSaveScore: "儲存/更新賽果",
-                adminBracketAssignTitle: "盃、碟、碗賽決賽對陣隊伍指定 (管理員專用)",
-                adminBracketAssignDesc: "管理者須為盃、碟、碗賽各參賽位置手動指定隊伍；系統不會按排名或種子自動帶入。",
+                adminBracketAssignTitle: "附加賽及盃、碟、碗賽隊伍指定 (管理員專用)",
+                adminBracketAssignDesc: "管理者須手動指定附加賽和決賽的各個位置；系統不會自動帶入排名或勝負隊伍。",
+                adminPlayInTitle: "附加賽陣容及勝負指定",
+                playInHeaderTitle: "附加賽 (Play-In)",
+                playInDayTag: "Day 9 附加賽",
+                playInDesc: "各場隊伍及勝負由管理員手動指定，決賽位置亦須另行指定。",
+                playInFields: { a: "隊伍 A", b: "隊伍 B", w: "勝者", l: "敗者" },
+                playInSources: {
+                    46: ["常規賽第 2 名 (R2)", "常規賽第 3 名 (R3)", "C2，進盃賽", "進 Game 48"],
+                    47: ["常規賽第 4 名 (R4)", "常規賽第 5 名 (R5)", "進 Game 48", "進 Game 49"],
+                    48: ["Game 46 敗者", "Game 47 勝者", "C3，進盃賽", "D4，進碟賽"],
+                    49: ["Game 47 敗者", "常規賽第 6 名 (R6)", "D5，進碟賽", "進 Game 51"],
+                    50: ["常規賽第 7 名 (R7)", "常規賽第 8 名 (R8)", "進 Game 51", "B8，進碗賽"],
+                    51: ["Game 50 勝者", "Game 49 敗者", "D6，進碟賽", "B7，進碗賽"]
+                },
                 bracketSelectPlaceholder: "請手動選擇隊伍",
                 bracketTeamUnset: "未指定",
                 adminCupBlockTitle: "🏆 盃賽決賽陣容指定",
@@ -573,10 +603,10 @@
                 lblGame52Loser: "G52 敗者",
                 lblGame53Loser: "G53 敗者",
                 lblBowlChampion: "碗賽總冠軍",
-                btnSaveBracketTeams: "儲存決賽對陣設定",
+                btnSaveBracketTeams: "儲存附加賽及決賽設定",
                 tabMatrix: "10x10 交叉對戰矩陣",
                 tabStandings: "聯賽排名榜",
-                tabBrackets: "盃碟碗決賽樹狀圖",
+                tabBrackets: "附加賽及盃碟碗決賽",
                 btnExport: "匯出數據",
                 matrixTitle: "GODSEND 3X3 官方交叉對戰表",
                 matrixSub: "（實時顯示各隊交手勝負與比分）",
@@ -650,7 +680,7 @@
                 msgResetSuccess: "已成功將對戰紀錄重置為「未賽」！",
                 msgAlreadyUnplayed: "該對戰原本就屬於「未賽」狀態。",
                 msgTeamNamesSaved: "已成功更新 10 支隊伍名稱！",
-                msgBracketTeamsSaved: "已成功更新盃、碟、碗決賽對陣指定隊伍！",
+                msgBracketTeamsSaved: "已成功更新附加賽及盃、碟、碗決賽指定隊伍！",
                 confirmDeleteTitle: "刪除賽果",
                 confirmDeleteMsg: "確定要刪除這場比賽紀錄嗎？",
                 confirmResetTitle: "重置對戰狀態",
@@ -684,8 +714,21 @@
                 optForfeitB: "Team B Forfeit (21-0)",
                 optResetUnplayed: "Reset to Unplayed",
                 btnSaveScore: "Save / Update Match",
-                adminBracketAssignTitle: "Cup, Plate & Bowl Finals Bracket Team Assignment (Admin)",
-                adminBracketAssignDesc: "Administrators must manually assign teams to every Cup, Plate, and Bowl slot; standings and seeds are never assigned automatically.",
+                adminBracketAssignTitle: "Play-In & Cup, Plate and Bowl Team Assignments (Admin)",
+                adminBracketAssignDesc: "Administrators must manually assign every play-in and finals slot; standings, winners and losers are not assigned automatically.",
+                adminPlayInTitle: "Play-In Teams and Results",
+                playInHeaderTitle: "Play-In",
+                playInDayTag: "Day 9 Play-In",
+                playInDesc: "Teams, winners and losers are assigned manually. Finals slots must also be assigned separately.",
+                playInFields: { a: "Team A", b: "Team B", w: "Winner", l: "Loser" },
+                playInSources: {
+                    46: ["Regular season #2 (R2)", "Regular season #3 (R3)", "C2, to Cup", "To Game 48"],
+                    47: ["Regular season #4 (R4)", "Regular season #5 (R5)", "To Game 48", "To Game 49"],
+                    48: ["Game 46 loser", "Game 47 winner", "C3, to Cup", "D4, to Plate"],
+                    49: ["Game 47 loser", "Regular season #6 (R6)", "D5, to Plate", "To Game 51"],
+                    50: ["Regular season #7 (R7)", "Regular season #8 (R8)", "To Game 51", "B8, to Bowl"],
+                    51: ["Game 50 winner", "Game 49 loser", "D6, to Plate", "B7, to Bowl"]
+                },
                 bracketSelectPlaceholder: "Select team manually",
                 bracketTeamUnset: "Unassigned",
                 adminCupBlockTitle: "🏆 Cup Finals Team Assignment",
@@ -710,10 +753,10 @@
                 lblGame52Loser: "G52 Loser",
                 lblGame53Loser: "G53 Loser",
                 lblBowlChampion: "Bowl Champion",
-                btnSaveBracketTeams: "Save Bracket Assignments",
+                btnSaveBracketTeams: "Save Play-In & Finals Assignments",
                 tabMatrix: "10x10 Match Matrix",
                 tabStandings: "League Standings",
-                tabBrackets: "Finals Brackets",
+                tabBrackets: "Play-In & Finals",
                 btnExport: "Export CSV",
                 matrixTitle: "GODSEND 3X3 Match Matrix",
                 matrixSub: "(Live head-to-head results & scores)",
@@ -787,7 +830,7 @@
                 msgResetSuccess: "Successfully reset match to Unplayed!",
                 msgAlreadyUnplayed: "This match is already in Unplayed state.",
                 msgTeamNamesSaved: "Successfully updated team names!",
-                msgBracketTeamsSaved: "Successfully updated cup, plate and bowl bracket team assignments!",
+                msgBracketTeamsSaved: "Successfully updated play-in and finals team assignments!",
                 confirmDeleteTitle: "Delete Result",
                 confirmDeleteMsg: "Are you sure you want to delete this match record?",
                 confirmResetTitle: "Reset Match Status",
@@ -808,6 +851,7 @@
             loadState();
             populateTeamSelects();
             renderTeamRenameInputs();
+            createPlayInGames();
             populateBracketAdminSelects();
             applyLanguageUI();
             renderAllViews();
@@ -856,6 +900,15 @@
             // Admin Bracket Assign UI labels
             document.getElementById('adminBracketAssignTitle').innerHTML = `<i class="fa-solid fa-sitemap mr-2"></i> ${t.adminBracketAssignTitle}`;
             document.getElementById('adminBracketAssignDesc').innerText = t.adminBracketAssignDesc;
+            document.getElementById('adminPlayInTitle').innerText = t.adminPlayInTitle;
+            document.getElementById('playInHeaderTitle').innerText = t.playInHeaderTitle;
+            document.getElementById('playInDayTag').innerText = t.playInDayTag;
+            document.getElementById('playInDesc').innerText = t.playInDesc;
+            PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach((field, index) => {
+                const label = `${t.playInFields[field]} (${t.playInSources[game][index]})`;
+                document.getElementById(`playInAdminLabel_${game}_${field}`).innerText = label;
+                document.getElementById(`playInLabel_${game}_${field}`).innerText = label;
+            }));
             document.getElementById('adminCupBlockTitle').innerText = t.adminCupBlockTitle;
             document.getElementById('lblGame57_A').innerText = t.lblGame57_A;
             document.getElementById('lblGame57_B').innerText = t.lblGame57_B;
@@ -992,8 +1045,34 @@
             `).join('');
         }
 
+        function createPlayInGames() {
+            document.getElementById('playInAdminGames').innerHTML = PLAY_IN_GAMES.map(game => `
+                <div class="bg-gray-900 border border-violet-900/50 rounded-xl p-3 space-y-2">
+                    <div class="text-xs font-bold text-violet-400">GAME ${game}</div>
+                    ${PLAY_IN_FIELDS.map(field => `
+                        <div class="space-y-1">
+                            <label for="admin_playin_${game}_${field}" id="playInAdminLabel_${game}_${field}" class="block text-[10px] text-gray-400"></label>
+                            <select id="admin_playin_${game}_${field}" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+            document.getElementById('playInGames').innerHTML = PLAY_IN_GAMES.map(game => `
+                <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-3 space-y-2">
+                    <div class="text-xs font-bold text-violet-400">GAME ${game}</div>
+                    ${PLAY_IN_FIELDS.map(field => `
+                        <div class="flex justify-between gap-3 text-xs border-t border-gray-800 pt-2">
+                            <span id="playInLabel_${game}_${field}" class="text-gray-400"></span>
+                            <span id="playInTeam_${game}_${field}" class="font-bold text-amber-400 text-right"></span>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
         function populateBracketAdminSelects() {
             const ids = ['admin_c57_a', 'admin_c57_b', 'admin_cup_r1', 'admin_c57_w', 'admin_cup_champion', 'admin_p56_a', 'admin_p56_b', 'admin_plate_d4', 'admin_p56_w', 'admin_plate_champion', 'admin_b52_a', 'admin_b52_b', 'admin_b53_a', 'admin_b53_b', 'admin_b52_w', 'admin_b53_w', 'admin_b52_l', 'admin_b53_l', 'admin_bowl_champion'];
+            PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach(field => ids.push(`admin_playin_${game}_${field}`)));
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -1018,6 +1097,10 @@
         }
 
         function saveBracketCustomTeams() {
+            PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach(field => {
+                const key = `playin_${game}_${field}`;
+                bracketCustom[key] = document.getElementById(`admin_${key}`).value;
+            }));
             bracketCustom.c57_a = document.getElementById('admin_c57_a').value;
             bracketCustom.c57_b = document.getElementById('admin_c57_b').value;
             bracketCustom.cup_r1 = document.getElementById('admin_cup_r1').value;
@@ -1223,6 +1306,9 @@
         /* --- Render Brackets Dynamic Mapping (with Custom Admin Overrides) --- */
         function renderBrackets() {
             const unset = i18n[currentLang].bracketTeamUnset;
+            PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach(field => {
+                document.getElementById(`playInTeam_${game}_${field}`).innerText = bracketCustom[`playin_${game}_${field}`] || unset;
+            }));
             const r1 = bracketCustom.cup_r1 || unset;
             const r9 = bracketCustom.b53_b || unset;
             const r10 = bracketCustom.b52_b || unset;
