@@ -163,7 +163,7 @@
                 <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center">
                     <i class="fa-solid fa-sitemap mr-2"></i> <span id="adminBracketAssignTitle">盃、碟、碗賽決賽對陣隊伍指定 (管理員專用)</span>
                 </h3>
-                <p class="text-[11px] text-gray-400" id="adminBracketAssignDesc">管理者可直接為各決賽場次指定參賽隊伍（或覆蓋系統預設排名對陣）：</p>
+                <p class="text-[11px] text-gray-400" id="adminBracketAssignDesc">管理者須為盃、碟、碗賽各參賽位置手動指定隊伍；系統不會按排名或種子自動帶入。</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Cup Block Assign -->
@@ -178,8 +178,16 @@
                             <select id="admin_c57_b" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] text-gray-400" id="lblCupFinalDirect">直通總決賽 (常規賽第1名)</label>
+                            <label class="text-[10px] text-gray-400" id="lblCupFinalDirect">盃賽總決賽參賽隊伍（手動指定）</label>
                             <select id="admin_cup_r1" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame57Winner">Game 57 勝者</label>
+                            <select id="admin_c57_w" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblCupChampion">盃賽總冠軍</label>
+                            <select id="admin_cup_champion" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
                         </div>
                     </div>
 
@@ -197,6 +205,14 @@
                         <div class="space-y-1">
                             <label class="text-[10px] text-gray-400" id="lblPlateFinalDirect">直通碟賽決賽 (D4)</label>
                             <select id="admin_plate_d4" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame56Winner">Game 56 勝者</label>
+                            <select id="admin_p56_w" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblPlateChampion">碟賽總冠軍</label>
+                            <select id="admin_plate_champion" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
                         </div>
                     </div>
 
@@ -218,6 +234,26 @@
                         <div class="space-y-1">
                             <label class="text-[10px] text-gray-400" id="lblGame53_B">Game 53 隊伍 B (第9名)</label>
                             <select id="admin_b53_b" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame52Winner">G52 勝者</label>
+                            <select id="admin_b52_w" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame53Winner">G53 勝者</label>
+                            <select id="admin_b53_w" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame52Loser">G52 敗者</label>
+                            <select id="admin_b52_l" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblGame53Loser">G53 敗者</label>
+                            <select id="admin_b53_l" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400" id="lblBowlChampion">碗賽總冠軍</label>
+                            <select id="admin_bowl_champion" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-white font-bold"></select>
                         </div>
                     </div>
                 </div>
@@ -465,13 +501,22 @@
             c57_a: "",
             c57_b: "",
             cup_r1: "",
+            c57_w: "",
+            cup_champion: "",
             p56_a: "",
             p56_b: "",
             plate_d4: "",
+            p56_w: "",
+            plate_champion: "",
             b52_a: "",
             b52_b: "",
             b53_a: "",
-            b53_b: ""
+            b53_b: "",
+            b52_w: "",
+            b53_w: "",
+            b52_l: "",
+            b53_l: "",
+            bowl_champion: ""
         };
 
         /* --- I18n Translations --- */
@@ -503,20 +548,31 @@
                 optResetUnplayed: "重置為未賽",
                 btnSaveScore: "儲存/更新賽果",
                 adminBracketAssignTitle: "盃、碟、碗賽決賽對陣隊伍指定 (管理員專用)",
-                adminBracketAssignDesc: "管理者可直接為各決賽場次指定參賽隊伍（或覆蓋系統預設排名對陣）：",
+                adminBracketAssignDesc: "管理者須為盃、碟、碗賽各參賽位置手動指定隊伍；系統不會按排名或種子自動帶入。",
+                bracketSelectPlaceholder: "請手動選擇隊伍",
+                bracketTeamUnset: "未指定",
                 adminCupBlockTitle: "🏆 盃賽決賽陣容指定",
-                lblGame57_A: "Game 57 隊伍 A (C2)",
-                lblGame57_B: "Game 57 隊伍 B (C3)",
-                lblCupFinalDirect: "直通總決賽 (常規賽第1名)",
+                lblGame57_A: "Game 57 隊伍 A（手動指定）",
+                lblGame57_B: "Game 57 隊伍 B（手動指定）",
+                lblCupFinalDirect: "盃賽總決賽參賽隊伍（手動指定）",
+                lblGame57Winner: "Game 57 勝者",
+                lblCupChampion: "盃賽總冠軍",
                 adminPlateBlockTitle: "🥇 碟賽決賽陣容指定",
-                lblGame56_A: "Game 56 隊伍 A (D5)",
-                lblGame56_B: "Game 56 隊伍 B (D6)",
-                lblPlateFinalDirect: "直通碟賽決賽 (D4)",
+                lblGame56_A: "Game 56 隊伍 A（手動指定）",
+                lblGame56_B: "Game 56 隊伍 B（手動指定）",
+                lblPlateFinalDirect: "碟賽總決賽參賽隊伍（手動指定）",
+                lblGame56Winner: "Game 56 勝者",
+                lblPlateChampion: "碟賽總冠軍",
                 adminBowlBlockTitle: "🎖️ 碗賽決賽陣容指定",
-                lblGame52_A: "Game 52 隊伍 A (B7)",
-                lblGame52_B: "Game 52 隊伍 B (第10名)",
-                lblGame53_A: "Game 53 隊伍 A (B8)",
-                lblGame53_B: "Game 53 隊伍 B (第9名)",
+                lblGame52_A: "Game 52 隊伍 A（手動指定）",
+                lblGame52_B: "Game 52 隊伍 B（手動指定）",
+                lblGame53_A: "Game 53 隊伍 A（手動指定）",
+                lblGame53_B: "Game 53 隊伍 B（手動指定）",
+                lblGame52Winner: "G52 勝者",
+                lblGame53Winner: "G53 勝者",
+                lblGame52Loser: "G52 敗者",
+                lblGame53Loser: "G53 敗者",
+                lblBowlChampion: "碗賽總冠軍",
                 btnSaveBracketTeams: "儲存決賽對陣設定",
                 tabMatrix: "10x10 交叉對戰矩陣",
                 tabStandings: "聯賽排名榜",
@@ -629,20 +685,31 @@
                 optResetUnplayed: "Reset to Unplayed",
                 btnSaveScore: "Save / Update Match",
                 adminBracketAssignTitle: "Cup, Plate & Bowl Finals Bracket Team Assignment (Admin)",
-                adminBracketAssignDesc: "Administrators can explicitly assign teams to each final match slot (overriding default ranking rules):",
+                adminBracketAssignDesc: "Administrators must manually assign teams to every Cup, Plate, and Bowl slot; standings and seeds are never assigned automatically.",
+                bracketSelectPlaceholder: "Select team manually",
+                bracketTeamUnset: "Unassigned",
                 adminCupBlockTitle: "🏆 Cup Finals Team Assignment",
-                lblGame57_A: "Game 57 Team A (C2)",
-                lblGame57_B: "Game 57 Team B (C3)",
-                lblCupFinalDirect: "Direct to Final (Regular #1)",
+                lblGame57_A: "Game 57 Team A (manual)",
+                lblGame57_B: "Game 57 Team B (manual)",
+                lblCupFinalDirect: "Cup Final Team (manual)",
+                lblGame57Winner: "Game 57 Winner",
+                lblCupChampion: "Cup Champion",
                 adminPlateBlockTitle: "🥇 Plate Finals Team Assignment",
-                lblGame56_A: "Game 56 Team A (D5)",
-                lblGame56_B: "Game 56 Team B (D6)",
-                lblPlateFinalDirect: "Direct to Plate Final (D4)",
+                lblGame56_A: "Game 56 Team A (manual)",
+                lblGame56_B: "Game 56 Team B (manual)",
+                lblPlateFinalDirect: "Plate Final Team (manual)",
+                lblGame56Winner: "Game 56 Winner",
+                lblPlateChampion: "Plate Champion",
                 adminBowlBlockTitle: "🎖️ Bowl Finals Team Assignment",
-                lblGame52_A: "Game 52 Team A (B7)",
-                lblGame52_B: "Game 52 Team B (10th)",
-                lblGame53_A: "Game 53 Team A (B8)",
-                lblGame53_B: "Game 53 Team B (9th)",
+                lblGame52_A: "Game 52 Team A (manual)",
+                lblGame52_B: "Game 52 Team B (manual)",
+                lblGame53_A: "Game 53 Team A (manual)",
+                lblGame53_B: "Game 53 Team B (manual)",
+                lblGame52Winner: "G52 Winner",
+                lblGame53Winner: "G53 Winner",
+                lblGame52Loser: "G52 Loser",
+                lblGame53Loser: "G53 Loser",
+                lblBowlChampion: "Bowl Champion",
                 btnSaveBracketTeams: "Save Bracket Assignments",
                 tabMatrix: "10x10 Match Matrix",
                 tabStandings: "League Standings",
@@ -749,6 +816,7 @@
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             applyLanguageUI();
+            populateBracketAdminSelects();
             renderAllViews();
         }
 
@@ -792,17 +860,26 @@
             document.getElementById('lblGame57_A').innerText = t.lblGame57_A;
             document.getElementById('lblGame57_B').innerText = t.lblGame57_B;
             document.getElementById('lblCupFinalDirect').innerText = t.lblCupFinalDirect;
+            document.getElementById('lblGame57Winner').innerText = t.lblGame57Winner;
+            document.getElementById('lblCupChampion').innerText = t.lblCupChampion;
 
             document.getElementById('adminPlateBlockTitle').innerText = t.adminPlateBlockTitle;
             document.getElementById('lblGame56_A').innerText = t.lblGame56_A;
             document.getElementById('lblGame56_B').innerText = t.lblGame56_B;
             document.getElementById('lblPlateFinalDirect').innerText = t.lblPlateFinalDirect;
+            document.getElementById('lblGame56Winner').innerText = t.lblGame56Winner;
+            document.getElementById('lblPlateChampion').innerText = t.lblPlateChampion;
 
             document.getElementById('adminBowlBlockTitle').innerText = t.adminBowlBlockTitle;
             document.getElementById('lblGame52_A').innerText = t.lblGame52_A;
             document.getElementById('lblGame52_B').innerText = t.lblGame52_B;
             document.getElementById('lblGame53_A').innerText = t.lblGame53_A;
             document.getElementById('lblGame53_B').innerText = t.lblGame53_B;
+            document.getElementById('lblGame52Winner').innerText = t.lblGame52Winner;
+            document.getElementById('lblGame53Winner').innerText = t.lblGame53Winner;
+            document.getElementById('lblGame52Loser').innerText = t.lblGame52Loser;
+            document.getElementById('lblGame53Loser').innerText = t.lblGame53Loser;
+            document.getElementById('lblBowlChampion').innerText = t.lblBowlChampion;
             document.getElementById('btnSaveBracketTeams').innerText = t.btnSaveBracketTeams;
 
             // Tabs
@@ -916,12 +993,13 @@
         }
 
         function populateBracketAdminSelects() {
-            const ids = ['admin_c57_a', 'admin_c57_b', 'admin_cup_r1', 'admin_p56_a', 'admin_p56_b', 'admin_plate_d4', 'admin_b52_a', 'admin_b52_b', 'admin_b53_a', 'admin_b53_b'];
+            const ids = ['admin_c57_a', 'admin_c57_b', 'admin_cup_r1', 'admin_c57_w', 'admin_cup_champion', 'admin_p56_a', 'admin_p56_b', 'admin_plate_d4', 'admin_p56_w', 'admin_plate_champion', 'admin_b52_a', 'admin_b52_b', 'admin_b53_a', 'admin_b53_b', 'admin_b52_w', 'admin_b53_w', 'admin_b52_l', 'admin_b53_l', 'admin_bowl_champion'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                const currentVal = bracketCustom[id.replace('admin_', '')] || '';
-                el.innerHTML = `<option value="">(系統自動/預設)</option>` + OFFICIAL_TEAMS.map(t => `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t}</option>`).join('');
+                const key = id.replace('admin_', '');
+                const currentVal = el.options.length ? el.value : (bracketCustom[key] || '');
+                el.innerHTML = `<option value="">${i18n[currentLang].bracketSelectPlaceholder}</option>` + OFFICIAL_TEAMS.map(t => `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t}</option>`).join('');
             });
         }
 
@@ -943,13 +1021,22 @@
             bracketCustom.c57_a = document.getElementById('admin_c57_a').value;
             bracketCustom.c57_b = document.getElementById('admin_c57_b').value;
             bracketCustom.cup_r1 = document.getElementById('admin_cup_r1').value;
+            bracketCustom.c57_w = document.getElementById('admin_c57_w').value;
+            bracketCustom.cup_champion = document.getElementById('admin_cup_champion').value;
             bracketCustom.p56_a = document.getElementById('admin_p56_a').value;
             bracketCustom.p56_b = document.getElementById('admin_p56_b').value;
             bracketCustom.plate_d4 = document.getElementById('admin_plate_d4').value;
+            bracketCustom.p56_w = document.getElementById('admin_p56_w').value;
+            bracketCustom.plate_champion = document.getElementById('admin_plate_champion').value;
             bracketCustom.b52_a = document.getElementById('admin_b52_a').value;
             bracketCustom.b52_b = document.getElementById('admin_b52_b').value;
             bracketCustom.b53_a = document.getElementById('admin_b53_a').value;
             bracketCustom.b53_b = document.getElementById('admin_b53_b').value;
+            bracketCustom.b52_w = document.getElementById('admin_b52_w').value;
+            bracketCustom.b53_w = document.getElementById('admin_b53_w').value;
+            bracketCustom.b52_l = document.getElementById('admin_b52_l').value;
+            bracketCustom.b53_l = document.getElementById('admin_b53_l').value;
+            bracketCustom.bowl_champion = document.getElementById('admin_bowl_champion').value;
 
             saveState();
             renderAllViews();
@@ -1134,12 +1221,11 @@
         }
 
         /* --- Render Brackets Dynamic Mapping (with Custom Admin Overrides) --- */
-        function renderBrackets(standings) {
-            const top10 = standings.map(s => s.teamName);
-            
-            const r1 = bracketCustom.cup_r1 || top10[0] || '[待定]';
-            const r9 = bracketCustom.b53_b || top10[8] || '[待定]';
-            const r10 = bracketCustom.b52_b || top10[9] || '[待定]';
+        function renderBrackets() {
+            const unset = i18n[currentLang].bracketTeamUnset;
+            const r1 = bracketCustom.cup_r1 || unset;
+            const r9 = bracketCustom.b53_b || unset;
+            const r10 = bracketCustom.b52_b || unset;
 
             document.getElementById('bracketR1').innerText = r1;
             document.getElementById('bracketR1Final').innerText = r1;
@@ -1147,34 +1233,34 @@
             document.getElementById('bracketR10').innerText = r10;
 
             // Cup
-            document.getElementById('bracketC2').innerText = bracketCustom.c57_a || (top10[1] ? `(R2/R3 勝者)` : '[待定]');
-            document.getElementById('bracketC3').innerText = bracketCustom.c57_b || (top10[2] ? `(G48 勝者)` : '[待定]');
-            document.getElementById('bracketW57').innerText = '[G57 勝者]';
-            document.getElementById('bracketCupChampion').innerText = r1;
+            document.getElementById('bracketC2').innerText = bracketCustom.c57_a || unset;
+            document.getElementById('bracketC3').innerText = bracketCustom.c57_b || unset;
+            document.getElementById('bracketW57').innerText = bracketCustom.c57_w || unset;
+            document.getElementById('bracketCupChampion').innerText = bracketCustom.cup_champion || unset;
 
             // Plate
-            document.getElementById('bracketD5').innerText = bracketCustom.p56_a || '[G49 勝者]';
-            document.getElementById('bracketD6').innerText = bracketCustom.p56_b || '[G51 勝者]';
-            document.getElementById('bracketD4').innerText = bracketCustom.plate_d4 || '[G48 敗者]';
-            document.getElementById('bracketD4Final').innerText = bracketCustom.plate_d4 || '[G48 敗者]';
-            document.getElementById('bracketW56').innerText = '[G56 勝者]';
-            document.getElementById('bracketPlateChampion').innerText = '[待定]';
+            document.getElementById('bracketD5').innerText = bracketCustom.p56_a || unset;
+            document.getElementById('bracketD6').innerText = bracketCustom.p56_b || unset;
+            document.getElementById('bracketD4').innerText = bracketCustom.plate_d4 || unset;
+            document.getElementById('bracketD4Final').innerText = bracketCustom.plate_d4 || unset;
+            document.getElementById('bracketW56').innerText = bracketCustom.p56_w || unset;
+            document.getElementById('bracketPlateChampion').innerText = bracketCustom.plate_champion || unset;
 
             // Bowl
-            document.getElementById('bracketB7').innerText = bracketCustom.b52_a || '[G51 敗者]';
-            document.getElementById('bracketB8').innerText = bracketCustom.b53_a || '[G50 敗者]';
-            document.getElementById('bracketW52').innerText = '[G52 勝者]';
-            document.getElementById('bracketW53').innerText = '[G53 勝者]';
-            document.getElementById('bracketL52').innerText = '[G52 敗者]';
-            document.getElementById('bracketL53').innerText = '[G53 敗者]';
-            document.getElementById('bracketBowlChampion').innerText = '[待定]';
+            document.getElementById('bracketB7').innerText = bracketCustom.b52_a || unset;
+            document.getElementById('bracketB8').innerText = bracketCustom.b53_a || unset;
+            document.getElementById('bracketW52').innerText = bracketCustom.b52_w || unset;
+            document.getElementById('bracketW53').innerText = bracketCustom.b53_w || unset;
+            document.getElementById('bracketL52').innerText = bracketCustom.b52_l || unset;
+            document.getElementById('bracketL53').innerText = bracketCustom.b53_l || unset;
+            document.getElementById('bracketBowlChampion').innerText = bracketCustom.bowl_champion || unset;
         }
 
         function renderAllViews() {
             const standings = calculateStandings();
             renderStandingsTable(standings);
             renderMatrixTable();
-            renderBrackets(standings);
+            renderBrackets();
             renderMatchHistory();
         }
 
