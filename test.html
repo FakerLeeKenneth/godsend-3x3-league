@@ -1060,12 +1060,20 @@
             document.getElementById('playInGames').innerHTML = PLAY_IN_GAMES.map(game => `
                 <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-3 space-y-2">
                     <div class="text-xs font-bold text-violet-400">GAME ${game}</div>
-                    ${PLAY_IN_FIELDS.map(field => `
+                    ${['a', 'b'].map(field => `
                         <div class="flex justify-between gap-3 text-xs border-t border-gray-800 pt-2">
                             <span id="playInLabel_${game}_${field}" class="text-gray-400"></span>
                             <span id="playInTeam_${game}_${field}" class="font-bold text-amber-400 text-right"></span>
                         </div>
                     `).join('')}
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        ${['w', 'l'].map(field => `
+                            <div class="bg-gradient-to-br from-violet-950/60 to-slate-900 border border-amber-500/40 rounded-xl p-3 text-center">
+                                <div id="playInLabel_${game}_${field}" class="text-[10px] font-bold text-amber-400 mb-1"></div>
+                                <div id="playInTeam_${game}_${field}" class="text-base font-black text-white break-words"></div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `).join('');
         }
@@ -1201,8 +1209,8 @@
                         teamA.forfeits++;
                         teamA.totalPoints += 0;
                     } else {
-                        teamB.losses++;
-                        teamB.totalPoints += 1;
+                        teamA.losses++;
+                        teamA.totalPoints += 1;
                     }
                 }
             });
