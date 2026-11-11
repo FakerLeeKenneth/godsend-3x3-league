@@ -333,11 +333,11 @@
 
         <!-- Section 2: Standings Table View (Hidden by default) -->
         <div id="sectionStandings" class="hidden bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <h3 class="text-sm font-bold text-white flex items-center">
                     <i class="fa-solid fa-ranking-star text-amber-500 mr-2"></i> <span id="standingsHeaderTitle">總積分與排名榜</span>
                 </h3>
-                <span class="text-xs text-gray-400" id="standingsHeaderSub">排序：總積分 > 勝場數 > 得失分差</span>
+                <span class="text-xs text-gray-400" id="standingsHeaderSub">排序：總積分 > 勝場數 > 同分隊伍對賽勝場 > 平均得分（不計任何棄權場次；沒有合資格場次則為 0）</span>
             </div>
 
             <div class="overflow-x-auto custom-scrollbar border border-gray-800 rounded-xl">
@@ -353,6 +353,7 @@
                             <th class="px-3 py-3 text-center" id="thPtsScored">總得分</th>
                             <th class="px-3 py-3 text-center" id="thPtsConceded">總失分</th>
                             <th class="px-3 py-3 text-center" id="thDiff">得失分差</th>
+                            <th class="px-3 py-3 text-center" id="thAvgScore">平均得分</th>
                             <th class="px-4 py-3 text-center text-amber-400 font-black" id="thTotalPts">總積分</th>
                         </tr>
                     </thead>
@@ -645,7 +646,7 @@
                 winChar: "勝",
                 lossChar: "負",
                 standingsTitle: "總積分與排名榜",
-                standingsSub: "排序：總積分 > 勝場數 > 得失分差",
+                standingsSub: "排序：總積分 > 勝場數 > 同分隊伍對賽勝場 > 平均得分（不計任何棄權場次；沒有合資格場次則為 0）",
                 thRank: "排名",
                 thTeam: "隊伍名稱",
                 thPlayed: "已賽",
@@ -655,6 +656,7 @@
                 thPtsScored: "總得分",
                 thPtsConceded: "總失分",
                 thDiff: "得失分差",
+                thAvgScore: "平均得分",
                 thTotalPts: "總積分",
                 cupHeaderTitle: "🏆 盃賽 (Cup Championship) — 爭奪 1-3 名",
                 cupDayTag: "Day 10 決賽",
@@ -798,7 +800,7 @@
                 winChar: "W",
                 lossChar: "L",
                 standingsTitle: "League Leaderboard",
-                standingsSub: "Order: Points > Wins > Point Diff",
+                standingsSub: "Order: Points > Wins > Head-to-head wins among tied teams > Average score (excluding all forfeited games; 0 if no eligible games)",
                 thRank: "Rank",
                 thTeam: "Team",
                 thPlayed: "GP",
@@ -808,6 +810,7 @@
                 thPtsScored: "PF",
                 thPtsConceded: "PA",
                 thDiff: "DIFF",
+                thAvgScore: "AVG SCORE",
                 thTotalPts: "PTS",
                 cupHeaderTitle: "🏆 Cup Championship — 1st-3rd Place",
                 cupDayTag: "Day 10 Finals",
@@ -1002,6 +1005,7 @@
             document.getElementById('thPtsScored').innerText = t.thPtsScored;
             document.getElementById('thPtsConceded').innerText = t.thPtsConceded;
             document.getElementById('thDiff').innerText = t.thDiff;
+            document.getElementById('thAvgScore').innerText = t.thAvgScore;
             document.getElementById('thTotalPts').innerText = t.thTotalPts;
 
             // Brackets Section Titles
@@ -1223,6 +1227,10 @@
                     pointsScored: 0,
                     pointsConceded: 0,
                     pointDiff: 0,
+                    averagePointsTotal: 0,
+                    averageGames: 0,
+                    averageScore: 0,
+                    headToHeadWins: 0,
                     totalPoints: 0
                 };
             });
@@ -1239,6 +1247,13 @@
                 teamA.pointsConceded += m.scoreB;
                 teamB.pointsScored += m.scoreB;
                 teamB.pointsConceded += m.scoreA;
+
+                if (!m.forfeitA && !m.forfeitB) {
+                    teamA.averagePointsTotal += m.scoreA;
+                    teamA.averageGames++;
+                    teamB.averagePointsTotal += m.scoreB;
+                    teamB.averageGames++;
+                }
 
                 if (m.scoreA > m.scoreB) {
                     teamA.wins++;
@@ -1267,13 +1282,36 @@
 
             Object.values(stats).forEach(s => {
                 s.pointDiff = s.pointsScored - s.pointsConceded;
+                s.averageScore = s.averageGames ? s.averagePointsTotal / s.averageGames : 0;
             });
 
-            return Object.values(stats).sort((a, b) => {
+            const standings = Object.values(stats).sort((a, b) => {
                 if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-                if (b.wins !== a.wins) return b.wins - a.wins;
-                return b.pointDiff - a.pointDiff;
+                return b.wins - a.wins;
             });
+            for (let start = 0; start < standings.length;) {
+                let end = start + 1;
+                while (end < standings.length &&
+                    standings[end].totalPoints === standings[start].totalPoints &&
+                    standings[end].wins === standings[start].wins) {
+                    end++;
+                }
+
+                const group = standings.slice(start, end);
+                const groupTeams = new Set(group.map(team => team.teamName));
+                matches.forEach(m => {
+                    if (!groupTeams.has(m.teamA) || !groupTeams.has(m.teamB)) return;
+                    if (m.scoreA > m.scoreB) stats[m.teamA].headToHeadWins++;
+                    else if (m.scoreB > m.scoreA) stats[m.teamB].headToHeadWins++;
+                });
+                group.sort((a, b) => {
+                    if (b.headToHeadWins !== a.headToHeadWins) return b.headToHeadWins - a.headToHeadWins;
+                    return b.averageScore - a.averageScore;
+                });
+                standings.splice(start, group.length, ...group);
+                start = end;
+            }
+            return standings;
         }
 
         function renderStandingsTable(standings) {
@@ -1299,6 +1337,7 @@
                         <td class="px-3 py-3 text-center text-gray-300">${team.pointsScored}</td>
                         <td class="px-3 py-3 text-center text-gray-300">${team.pointsConceded}</td>
                         <td class="px-3 py-3 text-center font-bold ${team.pointDiff > 0 ? 'text-emerald-400' : (team.pointDiff < 0 ? 'text-red-400' : 'text-gray-400')}">${diffFormatted}</td>
+                        <td class="px-3 py-3 text-center text-gray-300">${team.averageScore.toFixed(2)}</td>
                         <td class="px-4 py-3 text-center text-base font-black text-amber-400 bg-amber-500/10">${team.totalPoints}</td>
                     </tr>
                 `;
