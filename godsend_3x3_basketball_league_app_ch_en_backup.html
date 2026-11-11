@@ -281,6 +281,9 @@
                 <button onclick="switchTab('brackets')" id="tabBtnBrackets" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
                     <i class="fa-solid fa-sitemap mr-1.5"></i> <span id="tabBracketsText">附加賽及盃碟碗決賽</span>
                 </button>
+                <button onclick="switchTab('schedule')" id="tabBtnSchedule" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-calendar-days mr-1.5"></i> <span id="tabScheduleText">官方賽程表</span>
+                </button>
             </div>
             <div class="flex items-center space-x-2">
                 <button onclick="exportDataCSV()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold" title="Export CSV">
@@ -288,6 +291,29 @@
                 </button>
             </div>
         </div>
+
+        <!-- Official Schedule PDF -->
+        <section id="sectionSchedule" class="hidden bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center">
+                        <i class="fa-solid fa-calendar-days text-amber-500 mr-2"></i>
+                        <span id="scheduleTitle">官方賽程表</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1" id="scheduleDescription">查看 2026-2027 賽季完整賽程。</p>
+                </div>
+                <a id="scheduleLink" href="Godsend%203X3%20Basketball%20League%20Schedule%202026-2027.pdf" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg text-xs font-bold bg-gray-800 text-amber-400 hover:bg-gray-700 border border-gray-700 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+                    <span id="scheduleOpen">另開新視窗</span>
+                </a>
+            </div>
+            <iframe
+                id="scheduleFrame"
+                src="Godsend%203X3%20Basketball%20League%20Schedule%202026-2027.pdf"
+                title="官方賽程表"
+                class="w-full h-[70vh] min-h-[480px] rounded-xl border border-gray-800 bg-gray-950"
+                loading="lazy"></iframe>
+        </section>
 
         <!-- Section 1: 10x10 Match Matrix View -->
         <div id="sectionMatrix" class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-xl overflow-hidden">
@@ -551,6 +577,9 @@
                 ruleLoss: "負 = 1分",
                 ruleForfeit: "缺席/棄權 = 0分",
                 teamsCount: '<i class="fa-solid fa-people-group mr-1"></i> 參賽隊伍：10隊',
+                scheduleTitle: "官方賽程表",
+                scheduleDescription: "查看 2026-2027 賽季完整賽程。",
+                scheduleOpen: "另開新視窗",
                 adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> 管理員即時輸入與隊伍設定',
                 adminStatusTag: "登入狀態：可編輯賽程與隊名",
                 adminTeamRenameTitle: "自訂 10 支參賽隊伍名稱",
@@ -701,6 +730,9 @@
                 ruleLoss: "Loss = 1 pt",
                 ruleForfeit: "Forfeit = 0 pts",
                 teamsCount: '<i class="fa-solid fa-people-group mr-1"></i> Teams: 10',
+                scheduleTitle: "Official League Schedule",
+                scheduleDescription: "View the full schedule for the 2026-2027 season.",
+                scheduleOpen: "Open in new tab",
                 adminPanelTitle: '<i class="fa-solid fa-pen-to-square mr-2"></i> Admin Management & Settings',
                 adminStatusTag: "Status: Live Editing Enabled",
                 adminTeamRenameTitle: "Customize 10 Team Names",
@@ -877,6 +909,18 @@
             document.getElementById('ruleLoss').innerText = t.ruleLoss;
             document.getElementById('ruleForfeit').innerText = t.ruleForfeit;
             document.getElementById('teamsCountLabel').innerHTML = t.teamsCount;
+            document.getElementById('scheduleTitle').innerText = t.scheduleTitle;
+            document.getElementById('scheduleDescription').innerText = t.scheduleDescription;
+            document.getElementById('scheduleOpen').innerText = t.scheduleOpen;
+            const scheduleUrl = currentLang === 'zh'
+                ? 'Godsend%203X3%20Basketball%20League%20Schedule%202026-2027.pdf'
+                : 'Godsend%203X3%20Basketball%20League%20Schedule%202026-2027%20ENG.pdf';
+            const scheduleFrame = document.getElementById('scheduleFrame');
+            if (scheduleFrame.getAttribute('src') !== scheduleUrl) {
+                scheduleFrame.setAttribute('src', scheduleUrl);
+            }
+            scheduleFrame.title = t.scheduleTitle;
+            document.getElementById('scheduleLink').setAttribute('href', scheduleUrl);
 
             document.getElementById('adminPanelTitle').innerHTML = t.adminPanelTitle;
             document.getElementById('adminStatusTag').innerText = t.adminStatusTag;
@@ -939,6 +983,7 @@
             document.getElementById('tabMatrixText').innerText = t.tabMatrix;
             document.getElementById('tabStandingsText').innerText = t.tabStandings;
             document.getElementById('tabBracketsText').innerText = t.tabBrackets;
+            document.getElementById('tabScheduleText').innerText = t.scheduleTitle;
             document.getElementById('btnExportText').innerText = t.btnExport;
 
             // Matrix
@@ -1138,15 +1183,17 @@
             const btnMatrix = document.getElementById('tabBtnMatrix');
             const btnStandings = document.getElementById('tabBtnStandings');
             const btnBrackets = document.getElementById('tabBtnBrackets');
+            const btnSchedule = document.getElementById('tabBtnSchedule');
 
             const secMatrix = document.getElementById('sectionMatrix');
             const secStandings = document.getElementById('sectionStandings');
             const secBrackets = document.getElementById('sectionBrackets');
+            const secSchedule = document.getElementById('sectionSchedule');
 
-            [btnMatrix, btnStandings, btnBrackets].forEach(b => {
+            [btnMatrix, btnStandings, btnBrackets, btnSchedule].forEach(b => {
                 b.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-gray-800 text-gray-400 hover:text-white";
             });
-            [secMatrix, secStandings, secBrackets].forEach(s => s.classList.add('hidden'));
+            [secMatrix, secStandings, secBrackets, secSchedule].forEach(s => s.classList.add('hidden'));
 
             if (tab === 'matrix') {
                 btnMatrix.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
@@ -1157,6 +1204,9 @@
             } else if (tab === 'brackets') {
                 btnBrackets.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
                 secBrackets.classList.remove('hidden');
+            } else if (tab === 'schedule') {
+                btnSchedule.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 text-black";
+                secSchedule.classList.remove('hidden');
             }
         }
 
