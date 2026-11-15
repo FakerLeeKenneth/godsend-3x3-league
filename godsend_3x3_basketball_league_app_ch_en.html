@@ -6,6 +6,9 @@
     <title>GODSEND 3X3 籃球聯賽 2026-2027</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -70,6 +73,7 @@
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 mt-6 flex-1 w-full space-y-6">
+        <div id="syncStatus" role="status" class="rounded-xl border border-amber-500/30 bg-gray-900 p-3 text-xs text-amber-400">正在連接資料庫 / Connecting to database…</div>
 
         <!-- Scoring Rules Banner -->
         <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
@@ -92,6 +96,9 @@
                 </h2>
                 <span class="text-xs text-gray-400" id="adminStatusTag">登入狀態：可編輯賽程與隊名</span>
             </div>
+            <button type="button" onclick="importLocalData()" class="px-4 py-2 rounded-lg bg-gray-800 text-amber-400 border border-amber-500/30 text-xs font-bold">
+                匯入此瀏覽器的舊資料 / Import old data from this browser
+            </button>
 
             <!-- Team Name Customization Section -->
             <div class="bg-gray-950/60 border border-gray-800 rounded-xl p-4 space-y-3">
@@ -514,6 +521,7 @@
             <h3 id="modalTitle" class="text-base font-bold text-white"></h3>
             <p id="modalMessage" class="text-xs text-gray-400"></p>
             <div id="modalInputContainer">
+                <input type="email" id="adminEmailInput" autocomplete="username" placeholder="管理員電郵 / Admin email" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 mb-2">
                 <input type="password" id="adminPasswordInput" placeholder="請輸入管理員密碼" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
             </div>
             <div class="flex items-center justify-end space-x-2 pt-2">
@@ -531,7 +539,6 @@
             "方中", "Passione", "Titanic", "Godsend", "秋雨"
         ];
         
-        const ADMIN_PIN = "0000";
         const STORAGE_KEY_MATCHES = "GODSEND_3X3_MATCHES_V4";
         const STORAGE_KEY_TEAMS = "GODSEND_3X3_TEAMS_V4";
         const STORAGE_KEY_BRACKETS = "GODSEND_3X3_BRACKETS_V4";
@@ -880,16 +887,32 @@
         let isAdminMode = false;
         let pendingModalAction = null;
         let currentLang = 'zh';
+        let db;
+        let auth;
+        let cloudReady = false;
+        let cloudRevision = 0;
+        let cloudExists = false;
+        let lastCloudState = null;
+        let saving = false;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwcBg9Gyz83x2T9HPmGKE2RqR9PL7mIpw",
+            authDomain: "godsend3on3.firebaseapp.com",
+            projectId: "godsend3on3",
+            storageBucket: "godsend3on3.firebasestorage.app",
+            messagingSenderId: "632841601985",
+            appId: "1:632841601985:web:42bda0b768bbf91e042540"
+        };
 
         /* --- Initialization --- */
         window.onload = function() {
-            loadState();
             populateTeamSelects();
             renderTeamRenameInputs();
             createPlayInGames();
             populateBracketAdminSelects();
             applyLanguageUI();
             renderAllViews();
+            connectFirebase();
         };
 
         function toggleLanguage() {
@@ -1127,33 +1150,33 @@
             `).join('');
         }
 
-        function populateBracketAdminSelects() {
+        function populateBracketAdminSelects(useSavedValues = false) {
             const ids = ['admin_c57_a', 'admin_c57_b', 'admin_cup_r1', 'admin_c57_w', 'admin_cup_champion', 'admin_p56_a', 'admin_p56_b', 'admin_plate_d4', 'admin_p56_w', 'admin_plate_champion', 'admin_b52_a', 'admin_b52_b', 'admin_b53_a', 'admin_b53_b', 'admin_b52_w', 'admin_b53_w', 'admin_b52_l', 'admin_b53_l', 'admin_bowl_champion'];
             PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach(field => ids.push(`admin_playin_${game}_${field}`)));
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 const key = id.replace('admin_', '');
-                const currentVal = el.options.length ? el.value : (bracketCustom[key] || '');
+                const currentVal = !useSavedValues && el.options.length ? el.value : (bracketCustom[key] || '');
                 el.innerHTML = `<option value="">${i18n[currentLang].bracketSelectPlaceholder}</option>` + OFFICIAL_TEAMS.map(t => `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t}</option>`).join('');
             });
         }
 
-        function saveTeamNames() {
+        async function saveTeamNames() {
             const newTeams = [];
             for (let i = 0; i < 10; i++) {
                 const val = document.getElementById(`renameTeam_${i}`).value.trim();
                 newTeams.push(val || `隊伍 ${i+1}`);
             }
             OFFICIAL_TEAMS = newTeams;
-            saveState();
+            if (!await saveState()) return;
             populateTeamSelects();
             populateBracketAdminSelects();
             renderAllViews();
             alert(i18n[currentLang].msgTeamNamesSaved);
         }
 
-        function saveBracketCustomTeams() {
+        async function saveBracketCustomTeams() {
             PLAY_IN_GAMES.forEach(game => PLAY_IN_FIELDS.forEach(field => {
                 const key = `playin_${game}_${field}`;
                 bracketCustom[key] = document.getElementById(`admin_${key}`).value;
@@ -1178,7 +1201,7 @@
             bracketCustom.b53_l = document.getElementById('admin_b53_l').value;
             bracketCustom.bowl_champion = document.getElementById('admin_bowl_champion').value;
 
-            saveState();
+            if (!await saveState()) return;
             renderAllViews();
             alert(i18n[currentLang].msgBracketTeamsSaved);
         }
@@ -1448,10 +1471,11 @@
         }
 
         function deleteMatch(id) {
+            if (saving) return;
             const t = i18n[currentLang];
-            showConfirmModal(t.confirmDeleteTitle, t.confirmDeleteMsg, () => {
+            showConfirmModal(t.confirmDeleteTitle, t.confirmDeleteMsg, async () => {
                 matches = matches.filter(m => m.id !== id);
-                saveState();
+                if (!await saveState()) return;
                 renderAllViews();
             });
         }
@@ -1460,34 +1484,179 @@
             renderMatchHistory();
         }
 
-        function loadState() {
+        function setSyncStatus(message) {
+            document.getElementById('syncStatus').innerText = message;
+        }
+
+        function applyCloudState(data, exists) {
+            if (exists && (!Array.isArray(data.teams) || !Array.isArray(data.matches) ||
+                    !data.brackets || typeof data.brackets !== 'object' ||
+                    !Number.isSafeInteger(data.revision))) {
+                throw new Error('Invalid shared data format');
+            }
+            cloudExists = exists;
+            cloudRevision = exists ? data.revision : 0;
+            lastCloudState = exists ? JSON.parse(JSON.stringify(data)) : null;
+            OFFICIAL_TEAMS = exists ? data.teams.slice() : [...DEFAULT_TEAMS];
+            matches = exists ? data.matches.slice() : [];
+            bracketCustom = exists ? { ...data.brackets } : {};
+            populateTeamSelects();
+            renderTeamRenameInputs();
+            populateBracketAdminSelects(true);
+            renderAllViews();
+        }
+
+        function connectFirebase() {
+            if (typeof firebase === 'undefined') {
+                setSyncStatus('無法載入 Firebase，請檢查網絡並重新整理。 / Could not load Firebase. Check your connection and reload.');
+                return;
+            }
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            auth.onAuthStateChanged(user => {
+                isAdminMode = !!user;
+                updateAdminUI();
+            }, error => {
+                console.error('Authentication failed:', error);
+                alert('登入狀態出錯 / Authentication error: ' + error.message);
+            });
+            db.doc('league/state').onSnapshot({ includeMetadataChanges: true }, snapshot => {
+                if (snapshot.metadata.fromCache) {
+                    cloudReady = false;
+                    setSyncStatus('無法確認最新資料，請檢查網絡。 / Cannot confirm latest data. Check your connection.');
+                    return;
+                }
+                try {
+                    applyCloudState(snapshot.data(), snapshot.exists);
+                    cloudReady = true;
+                    setSyncStatus(snapshot.exists
+                        ? '已連接：顯示共用資料 / Connected: showing shared data'
+                        : '已連接：尚未有共用資料 / Connected: no shared data yet');
+                } catch (error) {
+                    cloudReady = false;
+                    console.error('Invalid shared data:', error);
+                    setSyncStatus('共用資料格式錯誤，無法載入。 / Invalid shared data; unable to load.');
+                }
+            }, error => {
+                cloudReady = false;
+                console.error('Database connection failed:', error);
+                setSyncStatus('無法讀取資料庫，請重新整理或檢查 Firebase 設定。 / Database read failed. Reload or check Firebase settings: ' + error.message);
+            });
+        }
+
+        async function saveState() {
+            if (!cloudReady || !isAdminMode || saving) {
+                alert('無法儲存：請確認已登入及連接資料庫。 / Cannot save: sign in and check the database connection.');
+                applyCloudState(lastCloudState, cloudExists);
+                return false;
+            }
+            if (!cloudExists) {
+                try {
+                    if (localStorage.getItem(STORAGE_KEY_TEAMS) || localStorage.getItem(STORAGE_KEY_MATCHES) ||
+                            localStorage.getItem(STORAGE_KEY_BRACKETS)) {
+                        alert('請先匯入此瀏覽器的舊資料，避免遺漏資料。 / Import this browser’s old data before saving, to avoid losing it.');
+                        applyCloudState(lastCloudState, cloudExists);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Could not check local data:', error);
+                    alert('無法檢查舊資料 / Could not check old data: ' + error.message);
+                    applyCloudState(lastCloudState, cloudExists);
+                    return false;
+                }
+            }
+            const expectedRevision = cloudRevision;
+            const expectedExists = cloudExists;
+            const data = {
+                teams: [...OFFICIAL_TEAMS],
+                matches: JSON.parse(JSON.stringify(matches)),
+                brackets: { ...bracketCustom },
+                revision: expectedRevision + 1
+            };
+            saving = true;
+            document.getElementById('adminPanel').inert = true;
+            setSyncStatus('正在儲存… / Saving…');
             try {
-                const savedTeams = localStorage.getItem(STORAGE_KEY_TEAMS);
-                if (savedTeams) {
-                    OFFICIAL_TEAMS = JSON.parse(savedTeams);
-                }
-                const savedMatches = localStorage.getItem(STORAGE_KEY_MATCHES);
-                if (savedMatches) {
-                    matches = JSON.parse(savedMatches);
-                }
-                const savedBrackets = localStorage.getItem(STORAGE_KEY_BRACKETS);
-                if (savedBrackets) {
-                    bracketCustom = JSON.parse(savedBrackets);
-                }
-            } catch (e) {
-                console.error("Failed to load state from localStorage:", e);
-                OFFICIAL_TEAMS = [...DEFAULT_TEAMS];
-                matches = [];
+                const ref = db.doc('league/state');
+                await db.runTransaction(async transaction => {
+                    const snapshot = await transaction.get(ref);
+                    if (snapshot.exists !== expectedExists ||
+                            (snapshot.exists && snapshot.data().revision !== expectedRevision)) {
+                        throw new Error('Shared data changed. Reload the latest data and try again.');
+                    }
+                    transaction.set(ref, data);
+                });
+                if (cloudRevision <= data.revision) applyCloudState(data, true);
+                setSyncStatus('已儲存到共用資料庫 / Saved to shared database');
+                return true;
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('儲存失敗 / Save failed: ' + error.message);
+                cloudReady = false;
+                setSyncStatus('儲存失敗，請重新整理以載入最新資料。 / Save failed. Reload to retrieve the latest data.');
+                applyCloudState(lastCloudState, cloudExists);
+                return false;
+            } finally {
+                saving = false;
+                document.getElementById('adminPanel').inert = false;
             }
         }
 
-        function saveState() {
+        async function importLocalData() {
+            if (!cloudReady || !isAdminMode || saving) {
+                alert('請先登入並連接資料庫。 / Sign in and connect to the database first.');
+                return;
+            }
+            if (cloudExists) {
+                alert('共用資料已存在，未匯入以免覆蓋。 / Shared data already exists. Import stopped to prevent overwriting it.');
+                return;
+            }
+            let data;
             try {
-                localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(OFFICIAL_TEAMS));
-                localStorage.setItem(STORAGE_KEY_MATCHES, JSON.stringify(matches));
-                localStorage.setItem(STORAGE_KEY_BRACKETS, JSON.stringify(bracketCustom));
-            } catch (e) {
-                console.error("Failed to save state to localStorage:", e);
+                const teams = localStorage.getItem(STORAGE_KEY_TEAMS);
+                const oldMatches = localStorage.getItem(STORAGE_KEY_MATCHES);
+                const brackets = localStorage.getItem(STORAGE_KEY_BRACKETS);
+                if (!teams && !oldMatches && !brackets) {
+                    alert('此瀏覽器找不到舊資料。請使用原本輸入資料的瀏覽器和網站網址。 / No old data found. Use the original browser and website address.');
+                    return;
+                }
+                data = {
+                    teams: teams ? JSON.parse(teams) : [...DEFAULT_TEAMS],
+                    matches: oldMatches ? JSON.parse(oldMatches) : [],
+                    brackets: brackets ? JSON.parse(brackets) : {},
+                    revision: 1
+                };
+                if (!Array.isArray(data.teams) || !Array.isArray(data.matches) ||
+                        !data.brackets || typeof data.brackets !== 'object' || Array.isArray(data.brackets)) {
+                    throw new Error('Invalid local data format');
+                }
+            } catch (error) {
+                console.error('Could not read local data:', error);
+                alert('無法讀取舊資料 / Could not read old data: ' + error.message);
+                return;
+            }
+            if (!confirm(`匯入 ${data.matches.length} 場比賽及此瀏覽器的隊名和賽程？ / Import ${data.matches.length} matches, team names and brackets from this browser?`)) return;
+            saving = true;
+            document.getElementById('adminPanel').inert = true;
+            try {
+                const ref = db.doc('league/state');
+                await db.runTransaction(async transaction => {
+                    const snapshot = await transaction.get(ref);
+                    if (snapshot.exists) throw new Error('Shared data already exists; import cancelled.');
+                    transaction.set(ref, data);
+                });
+                if (cloudRevision <= data.revision) applyCloudState(data, true);
+                setSyncStatus('舊資料已匯入共用資料庫 / Old data imported into shared database');
+                alert('匯入成功 / Import complete.');
+            } catch (error) {
+                console.error('Import failed:', error);
+                alert('匯入失敗，舊資料未被刪除 / Import failed; old data was not deleted: ' + error.message);
+                cloudReady = false;
+                setSyncStatus('匯入失敗，請重新整理。 / Import failed. Reload to check the shared data.');
+            } finally {
+                saving = false;
+                document.getElementById('adminPanel').inert = false;
             }
         }
 
@@ -1527,6 +1696,10 @@
         /* --- Admin Lock / Security --- */
         function requestAdminAccess() {
             const t = i18n[currentLang];
+            if (!auth) {
+                alert('無法連接登入服務，請檢查網絡並重新整理。 / Authentication unavailable. Check your connection and reload.');
+                return;
+            }
             if (isAdminMode) {
                 lockAdminMode();
                 return;
@@ -1534,24 +1707,34 @@
 
             showModal(
                 t.modalAdminAuthTitle,
-                t.modalAdminAuthMsg,
+                currentLang === 'zh' ? '請輸入 Firebase 管理員電郵及密碼：' : 'Enter your Firebase administrator email and password:',
                 true,
-                () => {
+                async () => {
+                    const email = document.getElementById('adminEmailInput').value.trim();
                     const inputPass = document.getElementById('adminPasswordInput').value;
-                    if (inputPass === ADMIN_PIN) {
-                        isAdminMode = true;
-                        updateAdminUI();
+                    const button = document.getElementById('modalConfirmBtn');
+                    button.disabled = true;
+                    try {
+                        await auth.signInWithEmailAndPassword(email, inputPass);
                         closeModal();
-                    } else {
-                        alert(t.errWrongPass);
+                    } catch (error) {
+                        console.error('Sign-in failed:', error);
+                        alert('登入失敗 / Sign-in failed: ' + error.message);
+                    } finally {
+                        button.disabled = false;
+                        document.getElementById('adminPasswordInput').value = '';
                     }
                 }
             );
         }
 
-        function lockAdminMode() {
-            isAdminMode = false;
-            updateAdminUI();
+        async function lockAdminMode() {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('Sign-out failed:', error);
+                alert('登出失敗 / Sign-out failed: ' + error.message);
+            }
         }
 
         function updateAdminUI() {
@@ -1607,7 +1790,7 @@
             }
         }
 
-        function handleScoreSubmit(event) {
+        async function handleScoreSubmit(event) {
             event.preventDefault();
             const t = i18n[currentLang];
             const teamA = document.getElementById('teamASelect').value;
@@ -1626,7 +1809,7 @@
             if (matchType === 'RESET_UNPLAYED') {
                 if (existingIndex >= 0) {
                     matches.splice(existingIndex, 1);
-                    saveState();
+                    if (!await saveState()) return;
                     renderAllViews();
                     alert(t.msgResetSuccess);
                 } else {
@@ -1665,7 +1848,7 @@
                 matches.push(matchData);
             }
 
-            saveState();
+            if (!await saveState()) return;
             renderAllViews();
 
             document.getElementById('scoreForm').reset();
@@ -1673,10 +1856,11 @@
         }
 
         function resetMatchToUnplayed(id) {
+            if (saving) return;
             const t = i18n[currentLang];
-            showConfirmModal(t.confirmResetTitle, t.confirmResetMsg, () => {
+            showConfirmModal(t.confirmResetTitle, t.confirmResetMsg, async () => {
                 matches = matches.filter(m => m.id !== id);
-                saveState();
+                if (!await saveState()) return;
                 renderAllViews();
             });
         }
